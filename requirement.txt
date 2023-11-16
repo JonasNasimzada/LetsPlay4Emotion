@@ -1,3 +1,3 @@
-cv2
+opencv-python
 pandas
-moviepy.video.io.VideoFileClip
+moviepy
