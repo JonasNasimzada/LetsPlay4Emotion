@@ -50,29 +50,31 @@ def extract_frames_from_csv(mp4_file, csv_file, output_folder, command):
     video_clip.reader.close()
 
 
-def process_folders(regex, mp4_file_location, temperature_file_location, output_dir_path, command):
+def process_folders(regex_person, regex_mp4, mp4_file_location, temperature_file_location, output_dir_path, command):
     for root, dirs, files in os.walk(mp4_file_location):
         for folder in dirs:
-            folder_path = os.path.join(root, folder)
-            for mp4_file in os.listdir(folder_path):
-                if re.search(regex, mp4_file):
-                    file_name, _ = os.path.splitext(mp4_file)
-                    temperature_file_path = os.path.join(temperature_file_location, folder, f"{file_name}_temp.csv")
-                    if not os.path.exists(temperature_file_path):
-                        print(f"[WARNING]: {mp4_file} doesn't have a temperature csv file")
-                        continue
-                    mp4_file_path = os.path.join(mp4_file_location, folder, mp4_file)
-                    perform_operation(mp4_file_path, temperature_file_path)
-                    extract_frames_from_csv(mp4_file_path, temperature_file_path, output_dir_path, command)
+            if re.search(regex_person, folder):
+                folder_path = os.path.join(root, folder)
+                for mp4_file in os.listdir(folder_path):
+                    if re.search(regex_mp4, mp4_file):
+                        file_name, _ = os.path.splitext(mp4_file)
+                        temperature_file_path = os.path.join(temperature_file_location, folder, f"{file_name}_temp.csv")
+                        if not os.path.exists(temperature_file_path):
+                            print(f"[WARNING]: {mp4_file} doesn't have a temperature csv file")
+                            continue
+                        mp4_file_path = os.path.join(mp4_file_location, folder, mp4_file)
+                        perform_operation(mp4_file_path, temperature_file_path)
+                        extract_frames_from_csv(mp4_file_path, temperature_file_path, output_dir_path, command)
 
 
 if __name__ == "__main__":
     # file_regex = ".*PA4.*"
     file_regex = ".*"
-    mp4_files = "/Users/joni/Downloads/es/mp4"
-    temperature_files = "/Users/joni/Downloads/es/csv"
-    output_dir = "/Users/joni/Downloads/es/output"
+    folder_regex = ""
+    mp4_files = "/Users/joni/Downloads/create_data/mp4"
+    temperature_files = "/Users/joni/Downloads/create_data/temperature"
+    output_dir = "/Users/joni/Downloads/create_data/output"
     python_command = "/Users/joni/DAD-3DHeads/demo.py"
 
-    process_folders(regex=file_regex, mp4_file_location=mp4_files,
+    process_folders(regex_person=folder_regex, regex_mp4=file_regex, mp4_file_location=mp4_files,
                     temperature_file_location=temperature_files, output_dir_path=output_dir, command=python_command)
