@@ -53,7 +53,8 @@ def extract_frames_from_csv(mp4_file, csv_file, output_folder, command):
 
 def process_folders(regex_person, regex_mp4, mp4_file_location, temperature_file_location, output_dir_path, command):
     for root, dirs, files in os.walk(mp4_file_location):
-        for folder in dirs:
+        for folder in sorted(dirs):
+            print(f"{folder}")
             if re.search(regex_person, folder):
                 folder_path = os.path.join(root, folder)
                 for mp4_file in os.listdir(folder_path):
@@ -71,11 +72,10 @@ def process_folders(regex_person, regex_mp4, mp4_file_location, temperature_file
 if __name__ == "__main__":
     # file_regex = ".*PA4.*"
     file_regex = ".*"
-    folder_regex = sys.argv[1]
-    mp4_files = "/homes/jnasimzada/schmerzvideos/video"
-    temperature_files = "/homes/jnasimzada/schmerzvideos/temperature"
-    output_dir = "/homes/jnasimzada/output_data_3"
-    python_command = "/homes/jnasimzada/DAD-3DHeads/demo.py"
+    mp4_files = "/Users/joni/Downloads/create_data/mp4"
+    temperature_files = "/Users/joni/Downloads/es/csv"
+    output_dir = "/Users/joni/Downloads/create_data/output"
+    python_command = "/Users/joni/DAD-3DHeads/demo.py"
 
-    process_folders(regex_person=folder_regex, regex_mp4=file_regex, mp4_file_location=mp4_files,
+    process_folders(regex_person="", regex_mp4=file_regex, mp4_file_location=mp4_files,
                     temperature_file_location=temperature_files, output_dir_path=output_dir, command=python_command)

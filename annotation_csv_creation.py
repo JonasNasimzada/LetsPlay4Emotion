@@ -1,6 +1,6 @@
+import argparse
 import os
 import re
-import sys
 
 import numpy as np
 import pandas as pd
@@ -31,7 +31,7 @@ def process_folders(regex_person, regex_file, bio_file_location, temperature_fil
                         perform_operation(bio_file_location, temperature_file_path, output_path=output_file_path)
                         bio_file_path = os.path.join(bio_file_location, folder, bio_file)
                         merge_csv(temperature_file=temperature_file_path, bio_file=bio_file_path,
-                                  output_file=output_dir_path)
+                                  output_file=output_file_path)
 
 
 def merge_csv(temperature_file, bio_file, output_file):
@@ -41,7 +41,7 @@ def merge_csv(temperature_file, bio_file, output_file):
     df2 = pd.read_csv(bio_file, names=["time", "gsr", "ecg", "emg_trapezius", "emg_corrugator", "emg_zygomaticus"],
                       delimiter='\t', header=None, skiprows=1)
     # Merge DataFrames on the key column
-    merged_df = pd.merge(df1, df2[['time', 'gsr', 'ecg', 'emg_trapezius']], on='time', how='left')
+    merged_df = pd.merge(df1, df2, on='time', how='left')
     columns_to_format = ['gsr', 'ecg', 'emg_trapezius']
 
     # Convert the specified columns to scientific notation
@@ -53,11 +53,20 @@ def merge_csv(temperature_file, bio_file, output_file):
 
 
 if __name__ == "__main__":
-    # Replace these file paths with the actual paths of your CSV files
-    bio_dir = '/Users/joni/Downloads/biosignals_filtered'
-    temp_dir = '/Users/joni/Downloads/create_data/temperature'
-    output_dir = sys.argv[1]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--bio_dir", required=True)
+    parser.add_argument("--temp_dir", required=True)
+    parser.add_argument("--output_dir", required=True)
+    parser.add_argument("--regex_Person", default="", required=False)
+    parser.add_argument("--regex_File", default="", required=False)
 
-    process_folders(regex_person="", regex_file="", bio_file_location=bio_dir, temperature_file_location=temp_dir,
-                    output_dir_path=output_dir)
+    args = parser.parse_args()
+
+    # Replace these file paths with the actual paths of your CSV files
+    # bio_dir = '/Users/joni/Downloads/biosignals_filtered'
+    # temp_dir = '/Users/joni/Downloads/create_data/temperature'
+    # output_dir = '/Users/joni/Downloads/create_data/output'
+
+    process_folders(regex_person=args.regex_Person, regex_file=args.regex_File, bio_file_location=args.bio_dir,
+                    temperature_file_location=args.temp_dir, output_dir_path=args.output_dir)
     # merge_csv(temperature_file=temp_dir, bio_file=bio_dir, output_file=output_dir)
