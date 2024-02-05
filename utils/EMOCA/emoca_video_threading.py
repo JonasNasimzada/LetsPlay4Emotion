@@ -11,7 +11,6 @@ import gdl
 from gdl.datasets.ImageTestDataset import TestData
 from gdl_apps.EMOCA.utils.io import save_obj
 from gdl_apps.EMOCA.utils.io import test
-# ... (other functions, classes, etc.)
 from gdl_apps.EMOCA.utils.load import load_model
 
 
@@ -19,7 +18,7 @@ def process_video_chunk(chunk_data):
     """Processes a specified chunk of a video using a single GPU."""
     video_path, start_frame, end_frame, output_folder, model_name, path_to_models, mode, save_images, save_codes, save_mesh, process_id, gpu_id = chunk_data
 
-    with torch.cuda.device(gpu_id):  # Assign chunk to specific GPU
+    with torch.cuda.device(gpu_id):
         emoca, conf = load_model(path_to_models, model_name, mode)
         emoca.cuda()
         emoca.eval()
@@ -27,7 +26,6 @@ def process_video_chunk(chunk_data):
         dataset = TestData(video_path, face_detector="fan", max_detection=20, start_frame=start_frame,
                            end_frame=end_frame)
 
-        # ... (process the chunk using the model and dataset on the assigned GPU)
         for j in auto.tqdm(range(len(dataset)),
                            desc=f"Processing chunk ({process_id}:{gpu_id}) {os.path.basename(video_path)} ({start_frame}-{end_frame})"):
             batch = dataset[j]
@@ -53,7 +51,6 @@ def worker(queue):
 def main():
     # Argument parsing
     parser = argparse.ArgumentParser()
-    # ... (add your argument parsing logic here)
     parser.add_argument('--input_directory', type=str, default='videos_directory',
                         help="Input directory containing video files.")
     parser.add_argument('--output_folder', type=str, default="image_output",
@@ -74,7 +71,7 @@ def main():
 
     video_paths = glob.glob(os.path.join(args.input_directory, '*.mp4'))
 
-    chunk_size = 64  # Adjust based on video length and resource constraints
+    chunk_size = 64 
     total_chunks = 0
     for video_path in video_paths:
         video_length_frames = len(TestData(video_path)) * 25  # Assuming 25fps
