@@ -5,6 +5,10 @@ import re
 import numpy as np
 import pandas as pd
 
+import torch.nn as nn
+from pytorch_lightning import Trainer
+from torch.nn import BCEWithLogitsLoss
+
 
 def perform_operation(file_path, csv_path, output_path):
     print(
@@ -70,3 +74,8 @@ if __name__ == "__main__":
     process_folders(regex_person=args.regex_Person, regex_file=args.regex_File, bio_file_location=args.bio_dir,
                     temperature_file_location=args.temp_dir, output_dir_path=args.output_dir)
     # merge_csv(temperature_file=temp_dir, bio_file=bio_dir, output_file=output_dir)
+    avgpool = BCEWithLogitsLoss
+
+    trainer = Trainer(max_epochs=100, accelerator='gpu', devices=3, precision=32, accumulate_grad_batches=2,
+                      enable_progress_bar=True, callbacks=[lr_monitor, checkpoint_callback], )
+    trainer.predict()
