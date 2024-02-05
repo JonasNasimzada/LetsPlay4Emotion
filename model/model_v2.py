@@ -38,7 +38,7 @@ class NeuralNetworkModel(LightningModule):
         self.conv_layers = nn_model
         self.lr = 1e-3
         self.batch_size = 64
-        self.num_worker = 4
+        self.num_worker = 8
 
         self.f1_score = torchmetrics.F1Score(task="multiclass", num_classes=num_classes)
         self.accuracy = torchmetrics.Accuracy(task="multiclass", num_classes=num_classes)
@@ -64,7 +64,7 @@ class NeuralNetworkModel(LightningModule):
     def train_dataloader(self):
         train_dataset = labeled_video_dataset(self.train_dataset_file, clip_sampler=make_clip_sampler('uniform', 2),
                                               transform=video_transform, decode_audio=False)
-        loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True)
+        loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker)
         return loader
 
     def _common_step(self, batch, batch_idx):
@@ -86,7 +86,7 @@ class NeuralNetworkModel(LightningModule):
         )
         return {"loss": loss, "output_network": output_network, "input_label": input_label}
 
-    def on_train_epoch_end(self, outputs):
+    def training_epoch_end(self, outputs):
         output_network = torch.cat([x["output_network"] for x in outputs])
         input_label = torch.cat([x["input_label"] for x in outputs])
         self.log_dict(
@@ -108,7 +108,7 @@ class NeuralNetworkModel(LightningModule):
     def val_dataloader(self):
         train_dataset = labeled_video_dataset(self.val_dataset_file, clip_sampler=make_clip_sampler('uniform', 2),
                                               transform=video_transform, decode_audio=False)
-        loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True)
+        loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker)
         return loader
 
     def validation_step(self, batch, batch_idx):
@@ -123,7 +123,7 @@ class NeuralNetworkModel(LightningModule):
         )
         return {"loss": loss, "output_network": output_network, "input_label": input_label}
 
-    def on_val_epoch_end(self, outputs):
+    def validation_epoch_end(self, outputs):
         output_network = torch.cat([x["output_network"] for x in outputs])
         input_label = torch.cat([x["input_label"] for x in outputs])
         self.log_dict(
@@ -142,7 +142,7 @@ class NeuralNetworkModel(LightningModule):
             prog_bar=True,
         )
 
-    def predict_step(self, batch, batch_idx, dataloader):
+    def predict_step(self, batch, batch_idx, dataloader=0):
         video, input_label = batch['video'], batch['label']
         output_network = self.forward(video)
         prediction = torch.argmax(output_network, dim=1)
