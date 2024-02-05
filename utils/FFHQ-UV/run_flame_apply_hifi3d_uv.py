@@ -208,7 +208,7 @@ if __name__ == '__main__':
     flame_mesh_path = args.flame_mesh_path
     uvmap_name = args.uvmap_name
 
-    refer_mesh_path = '/homes/jnasimzada/dataset_generation/output_3d_mesh/FLAME_w_HIFI3D_UV_V2.obj'
+    refer_mesh_path = '/FLAME_w_HIFI3D_UV_V2.obj'
     save_mesh_path = f'{flame_mesh_path[:-4]}.obj'
     save_mtl_path = f'{flame_mesh_path[:-4]}_w_HIFI3D_UV.mtl'
 
