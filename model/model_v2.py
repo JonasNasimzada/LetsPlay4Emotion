@@ -126,7 +126,8 @@ class NeuralNetworkModel(LightningModule):
         output_network = torch.cat([x["output_network"] for x in self.validation_output_list])
         input_label = torch.cat([x["input_label"] for x in self.validation_output_list])
 
-        #confusion_matrix = self.confusion_matrix(output_network, input_label)
+        self.confusion_matrix(output_network, input_label)
+        confusion_matrix_computed = self.confusion_matrix.compute().detach().cpu().numpy().astype(int)
         self.f1_score(output_network, input_label)
         self.accuracy(output_network, input_label)
         self.precision(output_network, input_label)
@@ -138,7 +139,6 @@ class NeuralNetworkModel(LightningModule):
                 "val_accuracy": self.accuracy,
                 "val_precision": self.precision,
                 "val_auroc": self.auroc,
-                #"val_confusion_matrix": confusion_matrix,
             },
             on_step=False,
             on_epoch=True,
@@ -146,10 +146,10 @@ class NeuralNetworkModel(LightningModule):
             sync_dist=True
         )
 
-        # df_cm = pd.DataFrame(confusion_matrix.numpy(), index=range(10), columns=range(10))
-        # fig, ax = plt.subplots(figsize=(10, 7))
-        # sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
-        # self.logger.experiment.add_figure("val_confusion_matrix matrix", fig, self.current_epoch)
+        df_cm = pd.DataFrame(confusion_matrix_computed, index=range(10), columns=range(10))
+        fig, ax = plt.subplots(figsize=(10, 7))
+        sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
+        self.logger.experiment.add_figure("val_confusion_matrix matrix", fig, self.current_epoch)
 
         self.validation_output_list.clear()
 
