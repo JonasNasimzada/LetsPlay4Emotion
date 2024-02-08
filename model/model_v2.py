@@ -1,8 +1,10 @@
 import argparse
 
+import pandas as pd
 import torch
 import torch.nn as nn
 import torchmetrics
+from matplotlib import pyplot as plt
 from pytorch_lightning import Trainer, LightningModule
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -27,7 +29,9 @@ from torchvision.transforms import (
 from torchvision.transforms._transforms_video import (
     NormalizeVideo
 )
-from torchvision.transforms.v2 import RandomAffine, GaussianBlur
+from torchvision.transforms.v2 import RandomAffine
+
+import seaborn as sns
 
 
 class NeuralNetworkModel(LightningModule):
@@ -82,12 +86,12 @@ class NeuralNetworkModel(LightningModule):
                 "train_f1_score": self.f1_score(output_network, input_label_adjusted_tensor),
                 "train_accuracy": self.accuracy(output_network, input_label_adjusted_tensor),
                 "train_precision": self.precision(output_network, input_label_adjusted_tensor),
-                "train_confusion_matrix": self.confusion_matrix(output_network, input_label_adjusted_tensor),
                 "train_auroc": self.auroc(output_network, input_label_adjusted_tensor),
             },
             on_step=False,
             on_epoch=True,
             prog_bar=True,
+            sync_dist=True
         )
         return {"loss": loss, "output_network": output_network, "input_label": input_label}
 
@@ -107,6 +111,7 @@ class NeuralNetworkModel(LightningModule):
             on_step=False,
             on_epoch=True,
             prog_bar=True,
+            sync_dist=True
         )
         pred = {"loss": loss, "output_network": output_network, "input_label": input_label}
         self.validation_output_list.append(pred)
@@ -122,13 +127,19 @@ class NeuralNetworkModel(LightningModule):
                 "val_f1_score": self.f1_score(output_network, input_label_adjusted_tensor),
                 "val_accuracy": self.accuracy(output_network, input_label_adjusted_tensor),
                 "val_precision": self.precision(output_network, input_label_adjusted_tensor),
-                "val_confusion_matrix": self.confusion_matrix(output_network, input_label_adjusted_tensor),
                 "val_auroc": self.auroc(output_network, input_label_adjusted_tensor),
             },
             on_step=False,
             on_epoch=True,
             prog_bar=True,
+            sync_dist=True
         )
+        confusion_matrix = self.confusion_matrix(output_network, input_label_adjusted_tensor)
+        df_cm = pd.DataFrame(confusion_matrix.numpy(), index=range(10), columns=range(10))
+        fig, ax = plt.subplots(figsize=(10, 7))
+        sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
+        self.logger.experiment.add_figure("val_confusion_matrix matrix", fig, self.current_epoch)
+
         self.validation_output_list.clear()
 
     def predict_step(self, batch, batch_idx, dataloader=0):
