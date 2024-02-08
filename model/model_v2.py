@@ -232,6 +232,8 @@ if __name__ == '__main__':
     logger = TensorBoardLogger("model_logger", name=logger_name)
     print(f"the logger name is: {logger_name}")
 
+    torch.set_float32_matmul_precision('high')
+
     trainer = Trainer(
         min_epochs=1,
         max_epochs=args.epochs,
