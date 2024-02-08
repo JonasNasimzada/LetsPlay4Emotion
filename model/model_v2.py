@@ -49,6 +49,7 @@ class NeuralNetworkModel(LightningModule):
         self.precision = Precision(task="multiclass", average='macro', num_classes=num_classes)
         self.recall = Recall(task="multiclass", average='macro', num_classes=3)
 
+        self.train_output_list = []
         self.validation_output_list = []
 
         self.loss = nn.CrossEntropyLoss()
@@ -78,13 +79,29 @@ class NeuralNetworkModel(LightningModule):
 
     def training_step(self, batch, batch_idx):
         loss, output_network, input_label = self._common_step(batch, batch_idx)
+        pred = {"loss": loss, "output_network": output_network, "input_label": input_label}
+        self.train_output_list.append(pred)
+
+        self.log_dict(
+            {
+                "train_loss": loss,
+            },
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+            sync_dist=True
+        )
+        return pred
+
+    def on_train_epoch_end(self):
+        output_network = torch.cat([x["output_network"] for x in self.train_output_list])
+        input_label = torch.cat([x["input_label"] for x in self.train_output_list])
         self.f1_score(output_network, input_label)
         self.accuracy(output_network, input_label)
         self.precision(output_network, input_label)
         self.auroc(output_network, input_label)
         self.log_dict(
             {
-                "train_loss": loss,
                 "train_f1_score": self.f1_score,
                 "train_accuracy": self.accuracy,
                 "train_precision": self.precision,
@@ -95,7 +112,7 @@ class NeuralNetworkModel(LightningModule):
             prog_bar=True,
             sync_dist=True
         )
-        return {"loss": loss, "output_network": output_network, "input_label": input_label}
+        self.train_output_list.clear()
 
     def val_dataloader(self):
         train_dataset = labeled_video_dataset(self.val_dataset_file, clip_sampler=make_clip_sampler('uniform', 2),
