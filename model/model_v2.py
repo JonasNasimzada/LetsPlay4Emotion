@@ -254,13 +254,6 @@ if __name__ == '__main__':
         nn_model=model_resnet,
 
     )
-    cpu_params = {
-        "accelerator": "cpu",
-        "gpus": None,  # use "devices" instead of "gpus" for PyTorch Lightning >= 1.7.
-        "auto_select_gpus": False
-    }
-    model.trainer_params.update(cpu_params)
-
     print(f"this train set is gonna be used: {train_set}")
     print(f"this val set is gonna be used: {val_set}")
 
