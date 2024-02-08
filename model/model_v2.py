@@ -46,7 +46,6 @@ class NeuralNetworkModel(LightningModule):
         self.confusion_matrix = torchmetrics.ConfusionMatrix(task="multiclass", num_classes=num_classes)
         self.auroc = torchmetrics.AUROC(task="multiclass", num_classes=num_classes)
         self.mean_absolute_error = MeanAbsoluteError()
-        self.mean_squared_error = MeanSquaredError()
         self.precision = Precision(task="multiclass", average='macro', num_classes=num_classes)
         self.recall = Recall(task="multiclass", average='macro', num_classes=3)
 
@@ -85,11 +84,11 @@ class NeuralNetworkModel(LightningModule):
                 "train_f1_score": self.f1_score(output_network, input_label_adjusted_tensor),
                 "train_accuracy": self.accuracy(output_network, input_label_adjusted_tensor),
                 "train_precision": self.precision(output_network, input_label_adjusted_tensor),
-                "train_mean_squared_log_error": self.mean_squared_log_error(output_network, input_label_adjusted_tensor),
+                "train_mean_squared_log_error": self.mean_squared_log_error(output_network,
+                                                                            input_label_adjusted_tensor),
                 "train_confusion_matrix": self.confusion_matrix(output_network, input_label_adjusted_tensor),
                 "train_auroc": self.auroc(output_network, input_label_adjusted_tensor),
                 "train_mean_absolute_error": self.mean_absolute_error(output_network, input_label_adjusted_tensor),
-                "train_mean_squared_error": self.mean_squared_error(output_network, input_label_adjusted_tensor),
             },
             on_step=False,
             on_epoch=True,
@@ -132,7 +131,6 @@ class NeuralNetworkModel(LightningModule):
                 "val_confusion_matrix": self.confusion_matrix(output_network, input_label_adjusted_tensor),
                 "val_auroc": self.auroc(output_network, input_label_adjusted_tensor),
                 "val_mean_absolute_error": self.mean_absolute_error(output_network, input_label_adjusted_tensor),
-                "val_mean_squared_error": self.mean_squared_error(output_network, input_label_adjusted_tensor),
             },
             on_step=False,
             on_epoch=True,
