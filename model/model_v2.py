@@ -82,7 +82,7 @@ class NeuralNetworkModel(LightningModule):
         loss, output_network, input_label = self._common_step(batch, batch_idx)
 
         self.training_output_network_list.append(output_network)
-        self.training_input_label_list.append(input_label.to(torch.int64))
+        self.training_input_label_list.append(input_label.view(-1))
 
         self.log_dict(
             {
@@ -127,7 +127,7 @@ class NeuralNetworkModel(LightningModule):
         loss, output_network, input_label = self._common_step(batch, batch_idx)
 
         self.validation_output_network_list.append(output_network)
-        self.validation_input_label_list.append(input_label.to(torch.int64))
+        self.validation_input_label_list.append(input_label.view(-1))
 
         self.log_dict(
             {
