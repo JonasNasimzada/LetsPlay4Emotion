@@ -46,7 +46,7 @@ class NeuralNetworkModel(LightningModule):
 
         self.f1_score = torchmetrics.F1Score(task="multiclass", num_classes=num_classes)
         self.accuracy = torchmetrics.Accuracy(task="multiclass", num_classes=num_classes)
-        self.confusion_matrix = torchmetrics.ConfusionMatrix(task="multiclass", num_classes=num_classes)
+        self.confusion_matrix = torchmetrics.ConfusionMatrix(task="multiclass", num_classes=num_classes).to("cpu")
         self.auroc = torchmetrics.AUROC(task="multiclass", num_classes=num_classes)
         self.precision = Precision(task="multiclass", average='macro', num_classes=num_classes)
         self.recall = Recall(task="multiclass", average='macro', num_classes=3)
