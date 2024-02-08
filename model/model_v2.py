@@ -44,7 +44,7 @@ class NeuralNetworkModel(LightningModule):
         self.batch_size = 64
         self.num_worker = 8
 
-        self.f1_score = torchmetrics.F1Score(task="multiclass", num_classes=num_classes).to(device="gpu")
+        self.f1_score = torchmetrics.F1Score(task="multiclass", num_classes=num_classes)
         self.accuracy = torchmetrics.Accuracy(task="multiclass", num_classes=num_classes)
         self.confusion_matrix = torchmetrics.ConfusionMatrix(task="multiclass", num_classes=num_classes)
         self.auroc = torchmetrics.AUROC(task="multiclass", num_classes=num_classes)
