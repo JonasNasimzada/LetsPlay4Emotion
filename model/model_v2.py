@@ -1,6 +1,7 @@
 import argparse
 
 import pandas as pd
+import seaborn as sns
 import torch
 import torch.nn as nn
 import torchmetrics
@@ -8,7 +9,6 @@ from matplotlib import pyplot as plt
 from pytorch_lightning import Trainer, LightningModule
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
-from pytorch_lightning.strategies import DeepSpeedStrategy
 from pytorchvideo.data import make_clip_sampler, labeled_video_dataset
 from pytorchvideo.transforms import (
     ApplyTransformToKey,
@@ -20,7 +20,7 @@ from pytorchvideo.transforms import (
 )
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
-from torchmetrics import MeanAbsoluteError, MeanSquaredError, Precision, Recall
+from torchmetrics import Precision, Recall
 from torchvision.transforms import Compose, Lambda
 from torchvision.transforms import (
     RandomCrop,
@@ -30,8 +30,6 @@ from torchvision.transforms._transforms_video import (
     NormalizeVideo
 )
 from torchvision.transforms.v2 import RandomAffine
-
-import seaborn as sns
 
 
 class NeuralNetworkModel(LightningModule):
@@ -127,7 +125,6 @@ class NeuralNetworkModel(LightningModule):
         input_label = torch.cat([x["input_label"] for x in self.validation_output_list])
 
         self.confusion_matrix(output_network, input_label)
-        confusion_matrix_computed = self.confusion_matrix.compute().detach().cpu().numpy().astype(int)
         self.f1_score(output_network, input_label)
         self.accuracy(output_network, input_label)
         self.precision(output_network, input_label)
@@ -146,7 +143,8 @@ class NeuralNetworkModel(LightningModule):
             sync_dist=True
         )
 
-        df_cm = pd.DataFrame(confusion_matrix_computed, index=range(10), columns=range(10))
+        confusion_matrix_computed = self.confusion_matrix.compute().detach().cpu().numpy().astype(int)
+        df_cm = pd.DataFrame(confusion_matrix_computed, index=range(2), columns=range(2))
         fig, ax = plt.subplots(figsize=(10, 7))
         sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
         self.logger.experiment.add_figure("val_confusion_matrix matrix", fig, self.current_epoch)
