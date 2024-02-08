@@ -25,7 +25,7 @@ from torchvision.transforms import (
     RandomHorizontalFlip
 )
 from torchvision.transforms._transforms_video import (
-    NormalizeVideo,
+    NormalizeVideo
 )
 from torchvision.transforms.v2 import RandomAffine, GaussianBlur
 
@@ -49,6 +49,11 @@ class NeuralNetworkModel(LightningModule):
         self.mean_squared_error = MeanSquaredError()
         self.precision = Precision(task="multiclass", average='macro', num_classes=num_classes)
         self.recall = Recall(task="multiclass", average='macro', num_classes=3)
+
+        self.training_output_network_list = []
+        self.training_input_label_list = []
+        self.validation_output_network_list = []
+        self.validation_input_label_list = []
 
         self.loss = nn.CrossEntropyLoss()
 
@@ -74,8 +79,11 @@ class NeuralNetworkModel(LightningModule):
         return loss, output_network, input_label
 
     def training_step(self, batch, batch_idx):
-        video, input_label = batch['video'], batch['label']
         loss, output_network, input_label = self._common_step(batch, batch_idx)
+
+        self.training_output_network_list.append(output_network)
+        self.training_input_label_list.append(input_label)
+
         self.log_dict(
             {
                 "train_loss": loss,
@@ -86,9 +94,10 @@ class NeuralNetworkModel(LightningModule):
         )
         return {"loss": loss, "output_network": output_network, "input_label": input_label}
 
-    def training_epoch_end(self, outputs):
-        output_network = torch.cat([x["output_network"] for x in outputs])
-        input_label = torch.cat([x["input_label"] for x in outputs])
+    def on_train_epoch_end(self):
+        output_network = torch.stack(self.training_output_network_list).mean()
+        input_label = torch.stack(self.training_input_label_list).mean()
+
         self.log_dict(
             {
                 "train_f1_score": self.f1_score(output_network, input_label),
@@ -104,6 +113,8 @@ class NeuralNetworkModel(LightningModule):
             on_epoch=True,
             prog_bar=True,
         )
+        self.training_output_network_list.clear()
+        self.training_input_label_list.clear()
 
     def val_dataloader(self):
         train_dataset = labeled_video_dataset(self.val_dataset_file, clip_sampler=make_clip_sampler('uniform', 2),
@@ -113,6 +124,10 @@ class NeuralNetworkModel(LightningModule):
 
     def validation_step(self, batch, batch_idx):
         loss, output_network, input_label = self._common_step(batch, batch_idx)
+
+        self.validation_output_network_list.append(output_network)
+        self.validation_input_label_list.append(input_label)
+
         self.log_dict(
             {
                 "val_loss": loss,
@@ -123,9 +138,9 @@ class NeuralNetworkModel(LightningModule):
         )
         return {"loss": loss, "output_network": output_network, "input_label": input_label}
 
-    def validation_epoch_end(self, outputs):
-        output_network = torch.cat([x["output_network"] for x in outputs])
-        input_label = torch.cat([x["input_label"] for x in outputs])
+    def on_validation_epoch_end(self):
+        output_network = torch.stack(self.validation_output_network_list).mean()
+        input_label = torch.stack(self.validation_input_label_list).mean()
         self.log_dict(
             {
                 "val_f1_score": self.f1_score(output_network, input_label),
@@ -141,6 +156,8 @@ class NeuralNetworkModel(LightningModule):
             on_epoch=True,
             prog_bar=True,
         )
+        self.validation_output_network_list.clear()
+        self.validation_input_label_list.clear()
 
     def predict_step(self, batch, batch_idx, dataloader=0):
         video, input_label = batch['video'], batch['label']
@@ -237,6 +254,12 @@ if __name__ == '__main__':
         nn_model=model_resnet,
 
     )
+    cpu_params = {
+        "accelerator": "cpu",
+        "gpus": None,  # use "devices" instead of "gpus" for PyTorch Lightning >= 1.7.
+        "auto_select_gpus": False
+    }
+    model.trainer_params.update(cpu_params)
 
     print(f"this train set is gonna be used: {train_set}")
     print(f"this val set is gonna be used: {val_set}")
