@@ -126,7 +126,7 @@ class NeuralNetworkModel(LightningModule):
         output_network = torch.cat([x["output_network"] for x in self.validation_output_list])
         input_label = torch.cat([x["input_label"] for x in self.validation_output_list])
 
-        confusion_matrix = self.confusion_matrix(output_network, input_label)
+        confusion_matrix = self.confusion_matrix(output_network.cpu(), input_label.cpu())
         self.f1_score(output_network, input_label)
         self.accuracy(output_network, input_label)
         self.accuracy(output_network, input_label)
