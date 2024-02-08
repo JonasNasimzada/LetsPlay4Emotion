@@ -42,7 +42,6 @@ class NeuralNetworkModel(LightningModule):
 
         self.f1_score = torchmetrics.F1Score(task="multiclass", num_classes=num_classes)
         self.accuracy = torchmetrics.Accuracy(task="multiclass", num_classes=num_classes)
-        self.mean_squared_log_error = torchmetrics.MeanSquaredLogError()
         self.confusion_matrix = torchmetrics.ConfusionMatrix(task="multiclass", num_classes=num_classes)
         self.auroc = torchmetrics.AUROC(task="multiclass", num_classes=num_classes)
         self.mean_absolute_error = MeanAbsoluteError()
@@ -84,8 +83,6 @@ class NeuralNetworkModel(LightningModule):
                 "train_f1_score": self.f1_score(output_network, input_label_adjusted_tensor),
                 "train_accuracy": self.accuracy(output_network, input_label_adjusted_tensor),
                 "train_precision": self.precision(output_network, input_label_adjusted_tensor),
-                "train_mean_squared_log_error": self.mean_squared_log_error(output_network,
-                                                                            input_label_adjusted_tensor),
                 "train_confusion_matrix": self.confusion_matrix(output_network, input_label_adjusted_tensor),
                 "train_auroc": self.auroc(output_network, input_label_adjusted_tensor),
                 "train_mean_absolute_error": self.mean_absolute_error(output_network, input_label_adjusted_tensor),
@@ -127,7 +124,6 @@ class NeuralNetworkModel(LightningModule):
                 "val_f1_score": self.f1_score(output_network, input_label_adjusted_tensor),
                 "val_accuracy": self.accuracy(output_network, input_label_adjusted_tensor),
                 "val_precision": self.precision(output_network, input_label_adjusted_tensor),
-                "val_mean_squared_log_error": self.mean_squared_log_error(output_network, input_label_adjusted_tensor),
                 "val_confusion_matrix": self.confusion_matrix(output_network, input_label_adjusted_tensor),
                 "val_auroc": self.auroc(output_network, input_label_adjusted_tensor),
                 "val_mean_absolute_error": self.mean_absolute_error(output_network, input_label_adjusted_tensor),
