@@ -50,10 +50,7 @@ class NeuralNetworkModel(LightningModule):
         self.precision = Precision(task="multiclass", average='macro', num_classes=num_classes)
         self.recall = Recall(task="multiclass", average='macro', num_classes=3)
 
-        self.training_output_network_list = []
-        self.training_input_label_list = []
-        self.validation_output_network_list = []
-        self.validation_input_label_list = []
+        self.validation_output_list = []
 
         self.loss = nn.CrossEntropyLoss()
 
@@ -80,42 +77,25 @@ class NeuralNetworkModel(LightningModule):
 
     def training_step(self, batch, batch_idx):
         loss, output_network, input_label = self._common_step(batch, batch_idx)
-
-        self.training_output_network_list.append(output_network)
-        self.training_input_label_list.append(input_label.view(-1))
+        input_label_tensor = input_label.view(-1)
 
         self.log_dict(
             {
                 "train_loss": loss,
+                "train_f1_score": self.f1_score(output_network, input_label_tensor),
+                "train_accuracy": self.accuracy(output_network, input_label_tensor),
+                "train_precision": self.precision(output_network, input_label_tensor),
+                "train_mean_squared_log_error": self.mean_squared_log_error(output_network, input_label_tensor),
+                "train_confusion_matrix": self.confusion_matrix(output_network, input_label_tensor),
+                "train_auroc": self.auroc(output_network, input_label_tensor),
+                "train_mean_absolute_error": self.mean_absolute_error(output_network, input_label_tensor),
+                "train_mean_squared_error": self.mean_squared_error(output_network, input_label_tensor),
             },
             on_step=False,
             on_epoch=True,
             prog_bar=True,
         )
         return {"loss": loss, "output_network": output_network, "input_label": input_label}
-
-    def on_train_epoch_end(self):
-        self.log_dict(
-            {
-                "train_f1_score": self.f1_score(self.training_output_network_list, self.training_input_label_list),
-                "train_accuracy": self.accuracy(self.training_output_network_list, self.training_input_label_list),
-                "train_precision": self.precision(self.training_output_network_list, self.training_input_label_list),
-                "train_mean_squared_log_error": self.mean_squared_log_error(self.training_output_network_list,
-                                                                            self.training_input_label_list),
-                "train_confusion_matrix": self.confusion_matrix(self.training_output_network_list,
-                                                                self.training_input_label_list),
-                "train_auroc": self.auroc(self.training_output_network_list, self.training_input_label_list),
-                "train_mean_absolute_error": self.mean_absolute_error(self.training_output_network_list,
-                                                                      self.training_input_label_list),
-                "train_mean_squared_error": self.mean_squared_error(self.training_output_network_list,
-                                                                    self.training_input_label_list),
-            },
-            on_step=False,
-            on_epoch=True,
-            prog_bar=True,
-        )
-        self.training_output_network_list.clear()
-        self.training_input_label_list.clear()
 
     def val_dataloader(self):
         train_dataset = labeled_video_dataset(self.val_dataset_file, clip_sampler=make_clip_sampler('uniform', 2),
@@ -126,9 +106,6 @@ class NeuralNetworkModel(LightningModule):
     def validation_step(self, batch, batch_idx):
         loss, output_network, input_label = self._common_step(batch, batch_idx)
 
-        self.validation_output_network_list.append(output_network)
-        self.validation_input_label_list.append(input_label.view(-1))
-
         self.log_dict(
             {
                 "val_loss": loss,
@@ -137,30 +114,30 @@ class NeuralNetworkModel(LightningModule):
             on_epoch=True,
             prog_bar=True,
         )
-        return {"loss": loss, "output_network": output_network, "input_label": input_label}
+        pred = {"loss": loss, "output_network": output_network, "input_label": input_label}
+        self.validation_output_list.append(pred)
+
+        return pred
 
     def on_validation_epoch_end(self):
+        output_network = torch.cat([x["output_network"] for x in self.validation_output_list])
+        input_label = torch.cat([x["input_label"] for x in self.validation_output_list])
         self.log_dict(
             {
-                "val_f1_score": self.f1_score(self.training_output_network_list, self.training_input_label_list),
-                "val_accuracy": self.accuracy(self.training_output_network_list, self.training_input_label_list),
-                "val_precision": self.precision(self.training_output_network_list, self.training_input_label_list),
-                "val_mean_squared_log_error": self.mean_squared_log_error(self.training_output_network_list,
-                                                                          self.training_input_label_list),
-                "val_confusion_matrix": self.confusion_matrix(self.training_output_network_list,
-                                                              self.training_input_label_list),
-                "val_auroc": self.auroc(self.training_output_network_list, self.training_input_label_list),
-                "val_mean_absolute_error": self.mean_absolute_error(self.training_output_network_list,
-                                                                    self.training_input_label_list),
-                "val_mean_squared_error": self.mean_squared_error(self.training_output_network_list,
-                                                                  self.training_input_label_list),
+                "val_f1_score": self.f1_score(output_network, input_label),
+                "val_accuracy": self.accuracy(output_network, input_label),
+                "val_precision": self.precision(output_network, input_label),
+                "val_mean_squared_log_error": self.mean_squared_log_error(output_network, input_label),
+                "val_confusion_matrix": self.confusion_matrix(output_network, input_label),
+                "val_auroc": self.auroc(output_network, input_label),
+                "val_mean_absolute_error": self.mean_absolute_error(output_network, input_label),
+                "val_mean_squared_error": self.mean_squared_error(output_network, input_label),
             },
             on_step=False,
             on_epoch=True,
             prog_bar=True,
         )
-        self.validation_output_network_list.clear()
-        self.validation_input_label_list.clear()
+        self.validation_output_list.clear()
 
     def predict_step(self, batch, batch_idx, dataloader=0):
         video, input_label = batch['video'], batch['label']
