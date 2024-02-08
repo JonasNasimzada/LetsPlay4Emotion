@@ -96,7 +96,7 @@ class NeuralNetworkModel(LightningModule):
 
     def on_train_epoch_end(self):
         output_network = torch.stack(self.training_output_network_list).mean()
-        input_label = torch.cat([x["input_label"] for x in self.training_input_label_list])
+        input_label = torch.cat([x for x in self.training_input_label_list])
 
         self.log_dict(
             {
@@ -140,7 +140,7 @@ class NeuralNetworkModel(LightningModule):
 
     def on_validation_epoch_end(self):
         output_network = torch.stack(self.validation_output_network_list).mean()
-        input_label = torch.cat([x["input_label"] for x in self.validation_input_label_list])
+        input_label = torch.cat([x for x in self.validation_input_label_list])
         self.log_dict(
             {
                 "val_f1_score": self.f1_score(output_network, input_label),
