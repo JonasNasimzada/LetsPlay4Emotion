@@ -72,21 +72,22 @@ class NeuralNetworkModel(LightningModule):
 
     def _common_step(self, batch, batch_idx):
         video, input_label = batch['video'], batch['label']
+        input_label = input_label.to(torch.int64).cpu()
         output_network = self.forward(video)
-        loss = self.loss(output_network, input_label.to(torch.int64))
+        output_network = output_network.cpu()
+        loss = self.loss(output_network, input_label)
         return loss, output_network, input_label
 
     def training_step(self, batch, batch_idx):
         loss, output_network, input_label = self._common_step(batch, batch_idx)
-        input_label_adjusted_tensor = input_label.to(torch.int64)
 
         self.log_dict(
             {
                 "train_loss": loss,
-                "train_f1_score": self.f1_score(output_network, input_label_adjusted_tensor),
-                "train_accuracy": self.accuracy(output_network, input_label_adjusted_tensor),
-                "train_precision": self.precision(output_network, input_label_adjusted_tensor),
-                "train_auroc": self.auroc(output_network, input_label_adjusted_tensor),
+                "train_f1_score": self.f1_score(output_network, input_label),
+                "train_accuracy": self.accuracy(output_network, input_label),
+                "train_precision": self.precision(output_network, input_label),
+                "train_auroc": self.auroc(output_network, input_label),
             },
             on_step=False,
             on_epoch=True,
@@ -121,20 +122,22 @@ class NeuralNetworkModel(LightningModule):
     def on_validation_epoch_end(self):
         output_network = torch.cat([x["output_network"] for x in self.validation_output_list])
         input_label = torch.cat([x["input_label"] for x in self.validation_output_list])
-        input_label_adjusted_tensor = input_label.to(torch.int64)
+
+        confusion_matrix = self.confusion_matrix(output_network, input_label)
         self.log_dict(
             {
-                "val_f1_score": self.f1_score(output_network, input_label_adjusted_tensor),
-                "val_accuracy": self.accuracy(output_network, input_label_adjusted_tensor),
-                "val_precision": self.precision(output_network, input_label_adjusted_tensor),
-                "val_auroc": self.auroc(output_network, input_label_adjusted_tensor),
+                "val_f1_score": self.f1_score(output_network, input_label),
+                "val_accuracy": self.accuracy(output_network, input_label),
+                "val_precision": self.precision(output_network, input_label),
+                "val_auroc": self.auroc(output_network, input_label),
+                "val_confusion_matrix": confusion_matrix,
             },
             on_step=False,
             on_epoch=True,
             prog_bar=True,
             sync_dist=True
         )
-        confusion_matrix = self.confusion_matrix(output_network, input_label_adjusted_tensor)
+
         df_cm = pd.DataFrame(confusion_matrix.numpy(), index=range(10), columns=range(10))
         fig, ax = plt.subplots(figsize=(10, 7))
         sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
