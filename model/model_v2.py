@@ -95,19 +95,20 @@ class NeuralNetworkModel(LightningModule):
         return {"loss": loss, "output_network": output_network, "input_label": input_label}
 
     def on_train_epoch_end(self):
-        output_network = torch.stack(self.training_output_network_list).mean()
-        input_label = torch.cat([x for x in self.training_input_label_list])
-        input_label = torch.argmax(input_label.squeeze(), dim=1)
         self.log_dict(
             {
-                "train_f1_score": self.f1_score(output_network, input_label),
-                "train_accuracy": self.accuracy(output_network, input_label),
-                "train_precision": self.precision(output_network, input_label),
-                "train_mean_squared_log_error": self.mean_squared_log_error(output_network, input_label),
-                "train_confusion_matrix": self.confusion_matrix(output_network, input_label),
-                "train_auroc": self.auroc(output_network, input_label),
-                "train_mean_absolute_error": self.mean_absolute_error(output_network, input_label),
-                "train_mean_squared_error": self.mean_squared_error(output_network, input_label),
+                "train_f1_score": self.f1_score(self.training_output_network_list, self.training_input_label_list),
+                "train_accuracy": self.accuracy(self.training_output_network_list, self.training_input_label_list),
+                "train_precision": self.precision(self.training_output_network_list, self.training_input_label_list),
+                "train_mean_squared_log_error": self.mean_squared_log_error(self.training_output_network_list,
+                                                                            self.training_input_label_list),
+                "train_confusion_matrix": self.confusion_matrix(self.training_output_network_list,
+                                                                self.training_input_label_list),
+                "train_auroc": self.auroc(self.training_output_network_list, self.training_input_label_list),
+                "train_mean_absolute_error": self.mean_absolute_error(self.training_output_network_list,
+                                                                      self.training_input_label_list),
+                "train_mean_squared_error": self.mean_squared_error(self.training_output_network_list,
+                                                                    self.training_input_label_list),
             },
             on_step=False,
             on_epoch=True,
@@ -139,19 +140,20 @@ class NeuralNetworkModel(LightningModule):
         return {"loss": loss, "output_network": output_network, "input_label": input_label}
 
     def on_validation_epoch_end(self):
-        output_network = torch.stack(self.validation_output_network_list).mean()
-        input_label = torch.cat([x for x in self.validation_input_label_list])
-        input_label = torch.argmax(input_label.squeeze(), dim=1)
         self.log_dict(
             {
-                "val_f1_score": self.f1_score(output_network, input_label),
-                "val_accuracy": self.accuracy(output_network, input_label),
-                "val_precision": self.precision(output_network, input_label),
-                "val_mean_squared_log_error": self.mean_squared_log_error(output_network, input_label),
-                "val_confusion_matrix": self.confusion_matrix(output_network, input_label),
-                "val_auroc": self.auroc(output_network, input_label),
-                "val_mean_absolute_error": self.mean_absolute_error(output_network, input_label),
-                "val_mean_squared_error": self.mean_squared_error(output_network, input_label),
+                "val_f1_score": self.f1_score(self.training_output_network_list, self.training_input_label_list),
+                "val_accuracy": self.accuracy(self.training_output_network_list, self.training_input_label_list),
+                "val_precision": self.precision(self.training_output_network_list, self.training_input_label_list),
+                "val_mean_squared_log_error": self.mean_squared_log_error(self.training_output_network_list,
+                                                                          self.training_input_label_list),
+                "val_confusion_matrix": self.confusion_matrix(self.training_output_network_list,
+                                                              self.training_input_label_list),
+                "val_auroc": self.auroc(self.training_output_network_list, self.training_input_label_list),
+                "val_mean_absolute_error": self.mean_absolute_error(self.training_output_network_list,
+                                                                    self.training_input_label_list),
+                "val_mean_squared_error": self.mean_squared_error(self.training_output_network_list,
+                                                                  self.training_input_label_list),
             },
             on_step=False,
             on_epoch=True,
