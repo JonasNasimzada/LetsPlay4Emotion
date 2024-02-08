@@ -46,7 +46,7 @@ class NeuralNetworkModel(LightningModule):
 
         self.f1_score = torchmetrics.F1Score(task="multiclass", num_classes=num_classes)
         self.accuracy = torchmetrics.Accuracy(task="multiclass", num_classes=num_classes)
-        self.confusion_matrix = torchmetrics.ConfusionMatrix(task="multiclass", num_classes=num_classes).to("cpu")
+        self.confusion_matrix = torchmetrics.ConfusionMatrix(task="multiclass", num_classes=num_classes)
         self.auroc = torchmetrics.AUROC(task="multiclass", num_classes=num_classes)
         self.precision = Precision(task="multiclass", average='macro', num_classes=num_classes)
         self.recall = Recall(task="multiclass", average='macro', num_classes=3)
@@ -126,7 +126,7 @@ class NeuralNetworkModel(LightningModule):
         output_network = torch.cat([x["output_network"] for x in self.validation_output_list])
         input_label = torch.cat([x["input_label"] for x in self.validation_output_list])
 
-        confusion_matrix = self.confusion_matrix(output_network.cpu(), input_label.cpu())
+        #confusion_matrix = self.confusion_matrix(output_network, input_label)
         self.f1_score(output_network, input_label)
         self.accuracy(output_network, input_label)
         self.accuracy(output_network, input_label)
@@ -146,10 +146,10 @@ class NeuralNetworkModel(LightningModule):
             sync_dist=True
         )
 
-        df_cm = pd.DataFrame(confusion_matrix.numpy(), index=range(10), columns=range(10))
-        fig, ax = plt.subplots(figsize=(10, 7))
-        sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
-        self.logger.experiment.add_figure("val_confusion_matrix matrix", fig, self.current_epoch)
+        # df_cm = pd.DataFrame(confusion_matrix.numpy(), index=range(10), columns=range(10))
+        # fig, ax = plt.subplots(figsize=(10, 7))
+        # sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
+        # self.logger.experiment.add_figure("val_confusion_matrix matrix", fig, self.current_epoch)
 
         self.validation_output_list.clear()
 
