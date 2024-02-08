@@ -82,7 +82,7 @@ class NeuralNetworkModel(LightningModule):
         loss, output_network, input_label = self._common_step(batch, batch_idx)
         self.f1_score(output_network, input_label)
         self.accuracy(output_network, input_label)
-        self.accuracy(output_network, input_label)
+        self.precision(output_network, input_label)
         self.auroc(output_network, input_label)
         self.log_dict(
             {
@@ -129,7 +129,7 @@ class NeuralNetworkModel(LightningModule):
         #confusion_matrix = self.confusion_matrix(output_network, input_label)
         self.f1_score(output_network, input_label)
         self.accuracy(output_network, input_label)
-        self.accuracy(output_network, input_label)
+        self.precision(output_network, input_label)
         self.auroc(output_network, input_label)
 
         self.log_dict(
