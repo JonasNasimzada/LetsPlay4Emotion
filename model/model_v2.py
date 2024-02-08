@@ -122,16 +122,17 @@ class NeuralNetworkModel(LightningModule):
     def on_validation_epoch_end(self):
         output_network = torch.cat([x["output_network"] for x in self.validation_output_list])
         input_label = torch.cat([x["input_label"] for x in self.validation_output_list])
+        input_label_tensor = input_label.view(-1)
         self.log_dict(
             {
-                "val_f1_score": self.f1_score(output_network, input_label),
-                "val_accuracy": self.accuracy(output_network, input_label),
-                "val_precision": self.precision(output_network, input_label),
-                "val_mean_squared_log_error": self.mean_squared_log_error(output_network, input_label),
-                "val_confusion_matrix": self.confusion_matrix(output_network, input_label),
-                "val_auroc": self.auroc(output_network, input_label),
-                "val_mean_absolute_error": self.mean_absolute_error(output_network, input_label),
-                "val_mean_squared_error": self.mean_squared_error(output_network, input_label),
+                "val_f1_score": self.f1_score(output_network, input_label_tensor),
+                "val_accuracy": self.accuracy(output_network, input_label_tensor),
+                "val_precision": self.precision(output_network, input_label_tensor),
+                "val_mean_squared_log_error": self.mean_squared_log_error(output_network, input_label_tensor),
+                "val_confusion_matrix": self.confusion_matrix(output_network, input_label_tensor),
+                "val_auroc": self.auroc(output_network, input_label_tensor),
+                "val_mean_absolute_error": self.mean_absolute_error(output_network, input_label_tensor),
+                "val_mean_squared_error": self.mean_squared_error(output_network, input_label_tensor),
             },
             on_step=False,
             on_epoch=True,
