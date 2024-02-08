@@ -44,7 +44,7 @@ class NeuralNetworkModel(LightningModule):
         self.batch_size = 64
         self.num_worker = 8
 
-        self.f1_score = torchmetrics.F1Score(task="multiclass", num_classes=num_classes)
+        self.f1_score = torchmetrics.F1Score(task="multiclass", num_classes=num_classes).to(device="gpu")
         self.accuracy = torchmetrics.Accuracy(task="multiclass", num_classes=num_classes)
         self.confusion_matrix = torchmetrics.ConfusionMatrix(task="multiclass", num_classes=num_classes)
         self.auroc = torchmetrics.AUROC(task="multiclass", num_classes=num_classes)
@@ -72,22 +72,25 @@ class NeuralNetworkModel(LightningModule):
 
     def _common_step(self, batch, batch_idx):
         video, input_label = batch['video'], batch['label']
-        input_label = input_label.to(torch.int64).cpu()
+        input_label = input_label.to(torch.int64)
         output_network = self.forward(video)
-        output_network = output_network.cpu()
+        output_network = output_network
         loss = self.loss(output_network, input_label)
         return loss, output_network, input_label
 
     def training_step(self, batch, batch_idx):
         loss, output_network, input_label = self._common_step(batch, batch_idx)
-
+        self.f1_score(output_network, input_label)
+        self.accuracy(output_network, input_label)
+        self.accuracy(output_network, input_label)
+        self.auroc(output_network, input_label)
         self.log_dict(
             {
                 "train_loss": loss,
-                "train_f1_score": self.f1_score(output_network, input_label),
-                "train_accuracy": self.accuracy(output_network, input_label),
-                "train_precision": self.precision(output_network, input_label),
-                "train_auroc": self.auroc(output_network, input_label),
+                "train_f1_score": self.f1_score,
+                "train_accuracy": self.accuracy,
+                "train_precision": self.precision,
+                "train_auroc": self.auroc,
             },
             on_step=False,
             on_epoch=True,
@@ -124,12 +127,17 @@ class NeuralNetworkModel(LightningModule):
         input_label = torch.cat([x["input_label"] for x in self.validation_output_list])
 
         confusion_matrix = self.confusion_matrix(output_network, input_label)
+        self.f1_score(output_network, input_label)
+        self.accuracy(output_network, input_label)
+        self.accuracy(output_network, input_label)
+        self.auroc(output_network, input_label)
+
         self.log_dict(
             {
-                "val_f1_score": self.f1_score(output_network, input_label),
-                "val_accuracy": self.accuracy(output_network, input_label),
-                "val_precision": self.precision(output_network, input_label),
-                "val_auroc": self.auroc(output_network, input_label),
+                "val_f1_score": self.f1_score,
+                "val_accuracy": self.accuracy,
+                "val_precision": self.precision,
+                "val_auroc": self.auroc,
                 "val_confusion_matrix": confusion_matrix,
             },
             on_step=False,
@@ -212,7 +220,6 @@ if __name__ == '__main__':
                                                                                                 'val_loss:.2f}',
                                           save_last=True)
     lr_monitor = LearningRateMonitor(logging_interval='epoch')
-    strategy = DeepSpeedStrategy(logging_batch_size_per_gpu=64)
 
     logger_name = f"model_{version}{data_infix}{args.type}"
     logger = TensorBoardLogger("model_logger", name=logger_name)
@@ -227,7 +234,7 @@ if __name__ == '__main__':
         devices=args.devices,
         callbacks=[lr_monitor, checkpoint_callback],
         enable_progress_bar=True,
-        strategy=strategy,
+        strategy="ddp",
         precision=args.precision,
         logger=logger
     )
