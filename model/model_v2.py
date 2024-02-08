@@ -226,7 +226,7 @@ if __name__ == '__main__':
                                                                                                 'val_loss:.2f}',
                                           save_last=True)
     lr_monitor = LearningRateMonitor(logging_interval='epoch')
-    strategy = DeepSpeedStrategy()
+    strategy = DeepSpeedStrategy(logging_batch_size_per_gpu=64)
 
     logger_name = f"model_{version}{data_infix}{args.type}"
     logger = TensorBoardLogger("model_logger", name=logger_name)
@@ -244,8 +244,8 @@ if __name__ == '__main__':
         logger=logger
     )
 
-    train_set = f"train-{data_infix}{data_suffix}.csv"
-    val_set = f"val-{data_infix}{data_suffix}.csv"
+    train_set = f"datasets/train-{data_infix}{data_suffix}.csv"
+    val_set = f"datasets/val-{data_infix}{data_suffix}.csv"
 
     model = NeuralNetworkModel(
         num_classes=classes,
