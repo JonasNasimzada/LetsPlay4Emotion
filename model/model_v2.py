@@ -138,7 +138,7 @@ class NeuralNetworkModel(LightningModule):
                 "val_accuracy": self.accuracy,
                 "val_precision": self.precision,
                 "val_auroc": self.auroc,
-                "val_confusion_matrix": confusion_matrix,
+                #"val_confusion_matrix": confusion_matrix,
             },
             on_step=False,
             on_epoch=True,
