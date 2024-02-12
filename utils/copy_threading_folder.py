@@ -6,7 +6,7 @@ import time
 import torch.multiprocessing as mp
 
 
-def process_video_chunk(chunk_data):
+def copy_dir(chunk_data):
     input_dir, mesh_dir, destination_dir = chunk_data
     source_path = f"{input_dir}/{mesh_dir}"
     shutil.copytree(source_path, os.path.join(destination_dir, mesh_dir))
@@ -17,7 +17,7 @@ def worker(queue):
         chunk_data = queue.get()
         if chunk_data is None:
             break
-        process_video_chunk(chunk_data)
+        copy_dir(chunk_data)
 
 
 def main():

@@ -7,13 +7,41 @@ uv_material_list = [None, "Person_0"]
 camera_position_list = ["Front", "Side"]
 
 
-def load_and_render_mesh(file_path, output_dir):
+def enable_gpus(device_type, use_cpus=False):
+    preferences = bpy.context.preferences
+    cycles_preferences = preferences.addons["cycles"].preferences
+    cycles_preferences.refresh_devices()
+    devices = cycles_preferences.devices
+
+    if not devices:
+        raise RuntimeError("Unsupported device type")
+
+    activated_gpus = []
+    for device in devices:
+        if device.type == "CPU":
+            device.use = use_cpus
+        else:
+            device.use = True
+            activated_gpus.append(device.name)
+            print('activated gpu', device.name)
+
+    cycles_preferences.compute_device_type = device_type
+    bpy.context.scene.cycles.device = "GPU"
+
+    return activated_gpus
+
+
+enable_gpus("CUDA")
+
+
+def load_and_render_mesh(input_path, file_path, output_path):
     file_dir = os.path.basename(os.path.normpath(file_path))
 
     # importing the mesh group
     seq_imp_settings = bpy.types.PropertyGroup.bl_rna_get_subclass_py("SequenceImportSettings")
     seq_imp_settings.fileNamePrefix = bpy.props.StringProperty(name='File Name', default='0')
-    bpy.ops.ms.import_sequence(directory=file_path)
+    print(file_path)
+    bpy.ops.ms.import_sequence(directory=f"{input_path}/{file_path}")
     seq_imp_settings.fileNamePrefix = bpy.props.StringProperty(name='File Name')
 
     # adding uv texture to the mesh
@@ -26,7 +54,7 @@ def load_and_render_mesh(file_path, output_dir):
         if uv_material is not None:
             uv_texture = blend.materials[uv_material]
             head.active_material = uv_texture
-        uv_material_dir = f"{output_dir}/{uv_material}"
+        uv_material_dir = f"{output_path}/{uv_material}"
         os.makedirs(uv_material_dir, exist_ok=True)
         for camera_position in camera_position_list:
             camera_position_dir = f"{uv_material_dir}/{camera_position}"
@@ -38,10 +66,8 @@ def load_and_render_mesh(file_path, output_dir):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input_dir', type=str)
-    parser.add_argument('--output_dir', type=str)
-    args = parser.parse_args()
-
-    for dirs in os.listdir(args.input_dir):
-        load_and_render_mesh(dirs, args.output_dir)
+    enable_gpus("CUDA")
+    input_dir = "/homes/jnasimzada/test_mesh"
+    output_dir = "/homes/jnasimzada"
+    for dirs in next(os.walk(input_dir))[1]:
+        load_and_render_mesh(input_dir, dirs, output_dir)
