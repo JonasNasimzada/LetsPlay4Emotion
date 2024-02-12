@@ -15,7 +15,7 @@ from gdl_apps.EMOCA.utils.load import load_model
 
 def process_video_chunk(chunk_data):
     video_path, output_folder, emoca = chunk_data
-
+    filename = video_path.replace("input_video/", "")[:video_path.rfind('.')]
     dm = TestFaceVideoDM(video_path, output_folder, processed_subfolder=None,
                          batch_size=4, num_workers=4)
     dm.prepare_data()
@@ -29,7 +29,7 @@ def process_video_chunk(chunk_data):
         for i in range(current_bs):
             # name = f"{(j*batch_size + i):05d}"
             name = batch["image_name"][i]
-            sample_output_folder = Path(output_folder) / name
+            sample_output_folder = Path(output_folder) / filename / name
             sample_output_folder.mkdir(parents=True, exist_ok=True)
             print("here")
             save_obj(emoca, str(sample_output_folder / "mesh_coarse.obj"), vals, i)
@@ -87,4 +87,5 @@ def main():
 
 
 if __name__ == '__main__':
+    mp.set_start_method('spawn')
     main()

@@ -20,7 +20,7 @@ from pytorchvideo.transforms import (
 )
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
-from torchmetrics import Precision, Recall
+from torchmetrics import Precision, Recall, F1Score, Accuracy, ConfusionMatrix, AUROC
 from torchvision.transforms import Compose, Lambda
 from torchvision.transforms import (
     RandomCrop,
@@ -42,10 +42,10 @@ class NeuralNetworkModel(LightningModule):
         self.batch_size = 32
         self.num_worker = 8
 
-        self.f1_score = torchmetrics.F1Score(task="multiclass", num_classes=num_classes)
-        self.accuracy = torchmetrics.Accuracy(task="multiclass", num_classes=num_classes)
-        self.confusion_matrix = torchmetrics.ConfusionMatrix(task="multiclass", num_classes=num_classes)
-        self.auroc = torchmetrics.AUROC(task="multiclass", num_classes=num_classes)
+        self.f1_score = F1Score(task="multiclass", num_classes=num_classes)
+        self.accuracy = Accuracy(task="multiclass", num_classes=num_classes)
+        self.confusion_matrix = ConfusionMatrix(task="multiclass", num_classes=num_classes)
+        self.auroc = AUROC(task="multiclass", num_classes=num_classes)
         self.precision = Precision(task="multiclass", average='macro', num_classes=num_classes)
         self.recall = Recall(task="multiclass", average='macro', num_classes=3)
 
