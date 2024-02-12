@@ -7,15 +7,9 @@ import torch.multiprocessing as mp
 
 
 def process_video_chunk(chunk_data):
-    source_dir, destination_dir = chunk_data
-    for item in os.listdir(source_dir):
-        # Construct the full path of the item
-        item_path = os.path.join(source_dir, item)
-
-        # Check if the item is a directory
-        if os.path.isdir(item_path):
-            # Copy the directory to the destination directory
-            shutil.copytree(item_path, os.path.join(destination_dir, item))
+    input_dir, mesh_dir, destination_dir = chunk_data
+    source_path = f"{input_dir}/{mesh_dir}"
+    shutil.copytree(source_path, os.path.join(destination_dir, mesh_dir))
 
 
 def worker(queue):
@@ -37,7 +31,7 @@ def main():
 
     num_processes = args.thread_num
 
-    mesh_path_list = os.listdir(args.input_directory)
+    mesh_path_list = next(os.walk(args.input_directory))[1]
 
     queue = mp.Queue()
     processes = []
@@ -48,7 +42,7 @@ def main():
 
     chunk_id = 0
     for mesh_path in mesh_path_list:
-        chunk_data = (mesh_path, args.output_dir)
+        chunk_data = (args.input_directory, mesh_path, args.output_dir)
         queue.put(chunk_data)
         chunk_id += 1
 
