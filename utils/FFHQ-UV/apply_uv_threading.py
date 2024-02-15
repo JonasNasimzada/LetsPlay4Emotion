@@ -47,7 +47,8 @@ def main():
     for root, dirs, files in os.walk(args.input_directory):
         for file in files:
             if file.endswith(".obj"):
-                obj_files.append(file)
+                print(os.path.abspath(file))
+                obj_files.append(os.path.abspath(file))
 
     print(obj_files)
 
