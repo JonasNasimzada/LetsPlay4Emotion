@@ -49,6 +49,8 @@ def main():
             if file.endswith(".obj"):
                 obj_files.append(file)
 
+    print(obj_files)
+
     queue = mp.Queue()
     processes = []
     for _ in range(num_processes):
