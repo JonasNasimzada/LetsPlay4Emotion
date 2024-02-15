@@ -15,7 +15,7 @@ def flatten_dir(chunk_data):
         for file in files:
             # Check if the file ends with ".obj"
             if file.endswith("mesh_coarse.obj"):
-                new_filename = os.path.join(os.path.basename(file), file)
+                new_filename = os.path.join(os.path.basename(os.path.dirname(file)), file)
                 new_filename = new_filename.replace(os.path.sep, "_")
                 new_file_path = f"{destination_path}/{new_filename}"
 
