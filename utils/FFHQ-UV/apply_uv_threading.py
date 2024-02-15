@@ -42,7 +42,12 @@ def main():
 
     num_processes = args.thread_num
 
-    obj_files = [filename for filename in os.listdir(args.input_directory) if filename.endswith(".obj")]
+    obj_files = []
+
+    for root, dirs, files in os.walk(args.input_directory):
+        for file in files:
+            if file.endswith(".obj"):
+                obj_files.append(file)
 
     queue = mp.Queue()
     processes = []
