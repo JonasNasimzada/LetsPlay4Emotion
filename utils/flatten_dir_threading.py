@@ -13,17 +13,11 @@ def flatten_dir(chunk_data):
     os.makedirs(destination_path, exist_ok=True)
     for root, dirs, files in os.walk(source_path):
         for file in files:
-            # Check if the file ends with ".obj"
             if file.endswith("mesh_coarse.obj"):
-                relative_path = os.path.relpath(source_path, file)
-                new_filename = os.path.join(relative_path, file)
-                new_filename = new_filename.replace(os.path.sep, "_")
-                output_path = f"{destination_path}/{new_filename}"
-
-                # Full path of the input file
+                print(os.path.basename(root))
+                new_filename = f"{os.path.basename(root)}_{file}"
+                output_path = os.path.join(destination_path, new_filename)
                 input_file_path = os.path.join(root, file)
-
-                # Copy the file to the output directory with the new filename
                 shutil.copy(input_file_path, output_path)
 
 
