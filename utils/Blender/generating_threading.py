@@ -21,6 +21,13 @@ class CommandProcess(mp.Process):
                 self.execute_command(directory)
 
     def execute_command(self, directory):
+        command = f"apptainer exec " \
+                  f"--bind ~/blender/Stop-motion-OBJ:/usr/local/blender/3.6/scripts/addons/Stop-motion-OBJ " \
+                  f"--bind ~/blender/config:/usr/local/blender/3.6/config/ " \
+                  f"--nv " \
+                  f"docker://blendergrid/blender:3.6.8 /usr/local/blender/blender " \
+                  f"--background {self.blender_file} " \
+                  f"--python ./generate_mesh_video.py"
         try:
             subprocess.run(['ls', '-l', directory], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                            universal_newlines=True)

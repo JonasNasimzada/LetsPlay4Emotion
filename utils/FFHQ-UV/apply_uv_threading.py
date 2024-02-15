@@ -6,8 +6,8 @@ import torch.multiprocessing as mp
 
 import run_flame_apply_hifi3d_uv
 
-refer_mesh_path = '/FLAME_w_HIFI3D_UV_V2.obj'
-uvmap_name = "/person_0_uv.png"
+refer_mesh_path = 'utils/FFHQ-UV/FLAME_w_HIFI3D_UV_V2.obj'
+uvmap_name = "utils/FFHQ-UV/person_0_uv.png"
 
 
 def apply_uv(chunk_data):
