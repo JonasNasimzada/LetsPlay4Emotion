@@ -1,5 +1,6 @@
 import argparse
 import os
+import shutil
 
 import bpy
 
@@ -62,6 +63,7 @@ def load_and_render_mesh(input_path, file_path, output_path):
             bpy.context.scene.camera = bpy.data.objects[camera_position]
             bpy.data.scenes[0].render.filepath = f"{camera_position_dir}/{file_dir}-{uv_material}-{uv_material}.mp4"
             bpy.ops.render.render(animation=True, write_still=True)
+            shutil.move()
     bpy.ops.object.delete()
 
 
