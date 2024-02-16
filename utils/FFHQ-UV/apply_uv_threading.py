@@ -6,12 +6,11 @@ import torch.multiprocessing as mp
 
 import run_flame_apply_hifi3d_uv
 
-refer_mesh_path = 'LetsPlay4Emotion/utils/FFHQ-UV/FLAME_w_HIFI3D_UV_V2.obj'
+refer_mesh_path = './FLAME_w_HIFI3D_UV_V2.obj'
 
 
-def apply_uv(obj_path):
-    flame_mesh_path = os.path.abspath(obj_path)
-    print(flame_mesh_path)
+def apply_uv(obj_file):
+    flame_mesh_path = os.path.relpath(obj_file)
     save_mtl_path = f'{flame_mesh_path[:-4]}_w_HIFI3D_UV.mtl'
 
     refer_data = run_flame_apply_hifi3d_uv.read_mesh_obj(refer_mesh_path)
@@ -47,7 +46,7 @@ def main():
     for root, dirs, files in os.walk(args.input_directory):
         for file in files:
             if file.endswith(".obj"):
-                obj_files.append(os.path.abspath(file))
+                obj_files.append(f"{root}/{file}")
 
     queue = mp.Queue()
     processes = []
