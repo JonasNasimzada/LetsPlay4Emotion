@@ -6,22 +6,21 @@ import torch.multiprocessing as mp
 
 import run_flame_apply_hifi3d_uv
 
-refer_mesh_path = 'LetsPlay4Emotion/utils/FFHQ-UV/FLAME_w_HIFI3D_UV_V2.obj'
+refer_mesh_path = './FLAME_w_HIFI3D_UV_V2.obj'
 
 
-def apply_uv(chunk_data):
-    flame_mesh_path = chunk_data
-    save_mtl_path = f'{flame_mesh_path[:-4]}_w_HIFI3D_UV.mtl'
+def apply_uv(obj_path):
+    save_mtl_path = f'{obj_path[:-4]}_w_HIFI3D_UV.mtl'
 
     refer_data = run_flame_apply_hifi3d_uv.read_mesh_obj(refer_mesh_path)
-    flame_data = run_flame_apply_hifi3d_uv.read_mesh_obj(flame_mesh_path)
-    print(flame_mesh_path)
+    flame_data = run_flame_apply_hifi3d_uv.read_mesh_obj(obj_path)
+    print(obj_path)
 
     flame_data['vt'] = refer_data['vt']
     flame_data['fvt'] = refer_data['fvt']
     flame_data['mtl_name'] = os.path.basename(save_mtl_path)
 
-    run_flame_apply_hifi3d_uv.write_mesh_obj(flame_data, flame_mesh_path)
+    run_flame_apply_hifi3d_uv.write_mesh_obj(flame_data, obj_path)
 
 
 def worker(queue):
@@ -47,10 +46,7 @@ def main():
     for root, dirs, files in os.walk(args.input_directory):
         for file in files:
             if file.endswith(".obj"):
-                print(os.path.abspath(file))
                 obj_files.append(os.path.abspath(file))
-
-    print(obj_files)
 
     queue = mp.Queue()
     processes = []
@@ -61,8 +57,7 @@ def main():
 
     chunk_id = 0
     for obj in obj_files:
-        chunk_data = (args.input_directory, obj)
-        queue.put(chunk_data)
+        queue.put(obj)
         chunk_id += 1
 
     for _ in range(num_processes):
