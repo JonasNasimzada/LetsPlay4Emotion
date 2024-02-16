@@ -6,7 +6,7 @@ import torch.multiprocessing as mp
 
 import run_flame_apply_hifi3d_uv
 
-refer_mesh_path = 'utils/FFHQ-UV/FLAME_w_HIFI3D_UV_V2.obj'
+refer_mesh_path = 'LetsPlay4Emotion/utils/FFHQ-UV/FLAME_w_HIFI3D_UV_V2.obj'
 
 
 def apply_uv(chunk_data):
