@@ -14,7 +14,6 @@ def apply_uv(obj_path):
 
     refer_data = run_flame_apply_hifi3d_uv.read_mesh_obj(refer_mesh_path)
     flame_data = run_flame_apply_hifi3d_uv.read_mesh_obj(obj_path)
-    print(obj_path)
 
     flame_data['vt'] = refer_data['vt']
     flame_data['fvt'] = refer_data['fvt']
