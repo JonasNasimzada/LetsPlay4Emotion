@@ -1,11 +1,11 @@
 import argparse
 import os
-import shutil
-
+import custom_argument_parser
 import bpy
 
-uv_material_list = [None, "Person_0"]
+uv_material_list = ["Person_0"]
 camera_position_list = ["Front", "Side"]
+rendered_video = []
 
 
 def enable_gpus(device_type, use_cpus=False):
@@ -37,11 +37,12 @@ enable_gpus("CUDA")
 
 def load_and_render_mesh(input_path, file_path, output_path):
     file_dir = os.path.basename(os.path.normpath(file_path))
+    bpy.context.scene.render.engine = 'BLENDER_EEVEE'
+    bpy.context.scene.eevee.taa_render_samples = 1
 
     # importing the mesh group
     seq_imp_settings = bpy.types.PropertyGroup.bl_rna_get_subclass_py("SequenceImportSettings")
     seq_imp_settings.fileNamePrefix = bpy.props.StringProperty(name='File Name', default='0')
-    print(file_path)
     bpy.ops.ms.import_sequence(directory=f"{input_path}/{file_path}")
     seq_imp_settings.fileNamePrefix = bpy.props.StringProperty(name='File Name')
 
@@ -63,12 +64,20 @@ def load_and_render_mesh(input_path, file_path, output_path):
             bpy.context.scene.camera = bpy.data.objects[camera_position]
             bpy.data.scenes[0].render.filepath = f"{camera_position_dir}/{file_dir}-{uv_material}-{camera_position}.mp4"
             bpy.ops.render.render(animation=True, write_still=True)
+            print(f"generated video: {file_dir} - {camera_position}")
     bpy.ops.object.delete()
+    rendered_video.append(file_dir)
+    print("all generated files:")
+    print(file_dir)
 
 
 if __name__ == '__main__':
-    enable_gpus("CUDA")
-    input_dir = "/homes/jnasimzada/test_mesh"
-    output_dir = "/homes/jnasimzada"
-    for dirs in next(os.walk(input_dir))[1]:
-        load_and_render_mesh(input_dir, dirs, output_dir)
+    parser = custom_argument_parser.ArgumentParserForBlender()
+    parser.add_argument('--batch_files', nargs='+', default=[])
+
+    args = parser.parse_args()
+    # enable_gpus("CUDA")
+    input_dir = "/usr/local/videos_input"
+    output_dir = "/usr/local/videos_output"
+    for dir_name in args.batch_files:
+        load_and_render_mesh(input_dir, dir_name, output_dir)

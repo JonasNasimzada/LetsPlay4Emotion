@@ -1,12 +1,18 @@
-import argparse
 import os
 import shutil
 
 
-def split_directory(source_dir, n):
+def get_non_matching_folders(dir1, dir2):
+
+    # Find the folders in dir2 that are not in dir1
+    non_matching_folders = dir2 - dir1
+
+    return list(non_matching_folders)
+
+def split_directory(source_dir, n, subdir_path):
     # Create n new directories
     for i in range(n):
-        new_dir = os.path.join(source_dir, f"subdir_{i}")
+        new_dir = os.path.join(subdir_path, f"subdir_{i}")
         os.makedirs(new_dir, exist_ok=True)
 
     # Get list of files in the source directory
@@ -23,21 +29,7 @@ def split_directory(source_dir, n):
         if i < remainder:
             end_index += 1
         folders_in_subdir = folders[start_index:end_index]
-        print(start_index)
-        print(end_index)
-        print()
         for folder_name in folders_in_subdir:
             src_folder = os.path.join(source_dir, folder_name)
-            dest_dir = os.path.join(source_dir, f"subdir_{i}")
+            dest_dir = os.path.join(subdir_path, f"subdir_{i}")
             shutil.copytree(src_folder, os.path.join(dest_dir, folder_name))
-
-
-if __name__ == '__main__':
-    # Argument parsing
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input_directory', type=str)
-    parser.add_argument('--dirs', type=int)
-
-    args = parser.parse_args()
-
-    split_directory(args.input_directory, args.dirs)
