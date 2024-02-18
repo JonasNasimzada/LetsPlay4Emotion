@@ -49,13 +49,15 @@ class BlenderProcess(mp.Process):
                   f"--bind ~/blender/config:/usr/local/blender/3.6/config/ " \
                   f"--bind /groups/constantin_students/jnasimzada/all_mesh:/usr/local/videos_input " \
                   f"--bind /groups/constantin_students/jnasimzada/videos_mesh:/usr/local/videos_output " \
+                  f"--bind /groups/constantin_students/jnasimzada/LetsPlay4Emotion/utils/Blender:/usr/local" \
+                  f"/Blender_script " \
                   f"--nv docker://blendergrid/blender:3.6.8 " \
                   f"/usr/local/blender/blender " \
                   f"--background " \
                   f"{self.blender_file} " \
-                  f"--python blender/generate_mesh_video.py " \
+                  f"--python /usr/local/Blender_script/generate_mesh_video.py " \
                   f"--" \
-                  f"--batch_files {' '.join(self.directories)}"
+                  f" --batch_files {' '.join(self.directories)}"
         try:
             subprocess.run(command, capture_output=True, shell=True, check=True)
         except subprocess.CalledProcessError as e:
@@ -92,7 +94,7 @@ def main():
             shutil.copy(f"/groups/constantin_students/jnasimzada/blender/{args.blend_file}",
                         output_blender_file_path)
         end_idx = start_idx + dirs_per_process + (1 if i < remaining_dirs else 0)
-        process = BlenderProcess(i, mesh_list_batch[start_idx:end_idx], thread_blender_file)
+        process = BlenderProcess(i, mesh_list_batch[start_idx:end_idx], output_blender_file_path)
         processes.append(process)
         process.start()
         start_idx = end_idx
