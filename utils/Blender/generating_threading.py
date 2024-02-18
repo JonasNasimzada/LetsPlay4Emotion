@@ -41,11 +41,9 @@ class BlenderProcess(mp.Process):
 
     def run(self):
         print(f"Process {self.process_number} is running")
-        for directory in self.directories:
-            if os.path.isdir(directory):
-                self.execute_command(directory)
+        self.execute_command()
 
-    def execute_command(self, directory):
+    def execute_command(self):
         command = f"apptainer exec " \
                   f"--bind ~/blender/Stop-motion-OBJ:/usr/local/blender/3.6/scripts/addons/Stop-motion-OBJ " \
                   f"--bind ~/blender/config:/usr/local/blender/3.6/config/ " \
@@ -59,9 +57,9 @@ class BlenderProcess(mp.Process):
                   f"--" \
                   f"--batch_files {' '.join(self.directories)}"
         try:
-            subprocess.run(command, capture_output=True)
+            subprocess.run(command, capture_output=True, shell=True, check=True)
         except subprocess.CalledProcessError as e:
-            print(f"Error executing command in Process {self.process_number} for directory {directory}: {e}")
+            print(f"Error executing command in Process {self.process_number} for directory {self.directories}: {e}")
 
 
 def main():
