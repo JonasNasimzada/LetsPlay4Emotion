@@ -59,7 +59,7 @@ class BlenderProcess(mp.Process):
                   f"--" \
                   f"--batch_files {' '.join(self.directories)}"
         try:
-            subprocess.run(command)
+            subprocess.run(command, capture_output=True)
         except subprocess.CalledProcessError as e:
             print(f"Error executing command in Process {self.process_number} for directory {directory}: {e}")
 
@@ -89,8 +89,10 @@ def main():
     start_idx = 0
     for i in range(num_processes):
         thread_blender_file = args.blend_file.replace('.blend', f'_{i}.blend')
-        shutil.copy(f"/groups/constantin_students/jnasimzada/blender/{args.blend_file}",
-                    f"/groups/constantin_students/jnasimzada/blender/{thread_blender_file}")
+        output_blender_file_path = f"/groups/constantin_students/jnasimzada/blender/{thread_blender_file}"
+        if not os.path.isfile(output_blender_file_path):
+            shutil.copy(f"/groups/constantin_students/jnasimzada/blender/{args.blend_file}",
+                        output_blender_file_path)
         end_idx = start_idx + dirs_per_process + (1 if i < remaining_dirs else 0)
         process = BlenderProcess(i, mesh_list_batch[start_idx:end_idx], thread_blender_file)
         processes.append(process)
