@@ -50,12 +50,12 @@ class BlenderProcess(mp.Process):
                   f"--bind /groups/constantin_students/jnasimzada/all_mesh:/usr/local/videos_input " \
                   f"--bind /groups/constantin_students/jnasimzada/videos_mesh:/usr/local/videos_output " \
                   f"--bind /groups/constantin_students/jnasimzada/LetsPlay4Emotion/utils/Blender:/usr/local/Blender_script" \
-                  f"--bind /groups/constantin_students/jnasimzada/blender:/usr/local/blender" \
+                  f"--bind /groups/constantin_students/jnasimzada/blender:/usr/local/blend_file" \
                   f"/Blender_script " \
                   f"--nv docker://blendergrid/blender:3.6.8 " \
                   f"/usr/local/blender/blender " \
                   f"--background " \
-                  f"/usr/local/blender/{self.blender_file} " \
+                  f"/usr/local/blend_file/{self.blender_file} " \
                   f"--python /usr/local/Blender_script/generate_mesh_video.py " \
                   f"--" \
                   f" --batch_files {' '.join(self.directories)}"
