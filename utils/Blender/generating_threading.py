@@ -89,7 +89,7 @@ def main():
     start_idx = 0
     for i in range(num_processes):
         thread_blender_file = args.blend_file.replace('.blend', f'_{i}.blend')
-        shutil.copy(f"blender/{args.blend_file}", f"blender/{thread_blender_file}")
+        shutil.copy(f"~/blender/{args.blend_file}", f"~/blender/{thread_blender_file}")
         end_idx = start_idx + dirs_per_process + (1 if i < remaining_dirs else 0)
         process = BlenderProcess(i, mesh_list_batch[start_idx:end_idx], thread_blender_file)
         processes.append(process)
