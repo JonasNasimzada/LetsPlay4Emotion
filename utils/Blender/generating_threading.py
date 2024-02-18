@@ -74,8 +74,7 @@ def main():
 
     args = parser.parse_args()
 
-    input_directory = "/usr/local/videos_input"
-    output_dir = "/usr/local/videos_output"
+    input_directory = "/groups/constantin_students/jnasimzada/all_mesh"
 
     num_processes = args.thread_num
     processes = []
