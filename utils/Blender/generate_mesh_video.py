@@ -1,6 +1,6 @@
 import argparse
 import os
-import custom_argument_parser
+from custom_argument_parser import ArgumentParserForBlender
 import bpy
 
 uv_material_list = ["Person_0"]
@@ -72,7 +72,7 @@ def load_and_render_mesh(input_path, file_path, output_path):
 
 
 if __name__ == '__main__':
-    parser = custom_argument_parser.ArgumentParserForBlender()
+    parser = ArgumentParserForBlender()
     parser.add_argument('--batch_files', nargs='+', default=[])
 
     args = parser.parse_args()
