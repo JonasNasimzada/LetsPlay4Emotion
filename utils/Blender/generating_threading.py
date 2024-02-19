@@ -88,7 +88,7 @@ def main():
 
     start_idx = 0
     for i in range(num_processes):
-        thread_blender_file = args.blend_file.replace('.blend', f'_{i}.blend')
+        thread_blender_file = args.blend_file.replace('.blend', f'_{args.current_batch}_{i}.blend')
         output_blender_file_path = f"/groups/constantin_students/jnasimzada/blender/{thread_blender_file}"
         if not os.path.isfile(output_blender_file_path):
             shutil.copy(f"/groups/constantin_students/jnasimzada/blender/{args.blend_file}",
