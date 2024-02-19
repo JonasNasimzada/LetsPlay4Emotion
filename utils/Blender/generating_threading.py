@@ -59,7 +59,12 @@ class BlenderProcess(mp.Process):
                   f"-- " \
                   f"--batch_files {' '.join(self.directories)}"
         try:
-            subprocess.run(command, capture_output=True, shell=True, check=True)
+            process = subprocess.run(command, capture_output=True, shell=True, check=True, stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
+            stdout_message = process.stdout.decode('utf-8')
+            stderr_message = process.stderr.decode('utf-8')
+            print(f"Standard Output:{self.process_number}", stdout_message)
+            print(f"Standard Error:{self.process_number}", stderr_message)
         except subprocess.CalledProcessError as e:
             print(f"Error executing command in Process {self.process_number} for directory {self.directories}: {e}")
 
