@@ -80,8 +80,10 @@ def load_and_render_mesh(input_path, file_path, output_path):
             bpy.context.scene.camera = bpy.data.objects[camera_position]
             output_video = f"{file_dir}-{uv_material}-{camera_position}.mp4"
             bpy.data.scenes[0].render.filepath = f"/usr/local/work/{output_video}"
+            bpy.app.handlers.render_complete.append(
+                shutil.move(f"/usr/local/work/{output_video}", f"{camera_position_dir}/{output_video}"))
             bpy.ops.render.render(animation=True, write_still=True)
-            shutil.move(f"/usr/local/work/{output_video}", f"{camera_position_dir}/{output_video}")
+
     bpy.ops.object.delete()
 
 

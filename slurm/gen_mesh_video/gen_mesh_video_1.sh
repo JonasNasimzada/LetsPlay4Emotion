@@ -5,6 +5,6 @@
 #SBATCH --cpus-per-gpu=8
 srun python generating_threading.py \
 --blend_file mesh_sequence_v3.blend \
---thread_num 64 \
+--thread_num 8 \
 --batch_size 4 \
 --current_batch 0
