@@ -59,6 +59,7 @@ class BlenderProcess(mp.Process):
                   f"--python /usr/local/Blender_script/generate_mesh_video.py " \
                   f"-- " \
                   f"--batch_files {' '.join(self.directories)}"
+        print(f"command: {command}")
         try:
             subprocess.run(command, capture_output=True, shell=True, check=True)
         except subprocess.CalledProcessError as e:
@@ -97,6 +98,7 @@ def main():
         end_idx = start_idx + dirs_per_process + (1 if i < remaining_dirs else 0)
         process = BlenderProcess(i, mesh_list_batch[start_idx:end_idx], thread_blender_file)
         processes.append(process)
+        print(f"start process: {thread_blender_file}")
         process.start()
         start_idx = end_idx
 
