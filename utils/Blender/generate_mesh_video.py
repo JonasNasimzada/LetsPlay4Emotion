@@ -1,4 +1,6 @@
 import os
+import shutil
+
 import bpy
 
 import argparse
@@ -45,7 +47,7 @@ class ArgumentParserForBlender(argparse.ArgumentParser):
 
 
 uv_material_list = ["Person_0"]
-camera_position_list = ["Front", "Side"]
+camera_position_list = ["Front"]
 rendered_video = []
 
 
@@ -103,8 +105,10 @@ def load_and_render_mesh(input_path, file_path, output_path):
             camera_position_dir = f"{uv_material_dir}/{camera_position}"
             os.makedirs(camera_position_dir, exist_ok=True)
             bpy.context.scene.camera = bpy.data.objects[camera_position]
-            bpy.data.scenes[0].render.filepath = f"{camera_position_dir}/{file_dir}-{uv_material}-{camera_position}.mp4"
+            output_video = f"{file_dir}-{uv_material}-{camera_position}.mp4"
+            bpy.data.scenes[0].render.filepath = f"/local/work/{output_video}"
             bpy.ops.render.render(animation=True, write_still=True)
+            shutil.move(f"/local/work/{output_video}", f"{camera_position_dir}/{output_video}")
             print(f"generated video: {file_dir} - {camera_position}")
     bpy.ops.object.delete()
     rendered_video.append(file_dir)
