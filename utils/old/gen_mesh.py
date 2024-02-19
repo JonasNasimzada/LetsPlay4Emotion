@@ -34,8 +34,8 @@ if __name__ == '__main__':
             step1_process_data.process_data(args, working_dir, f"{working_dir}/processed_data")
             step2_fit_processed_data.generate_mesh(args, f"{working_dir}/processed_data", output_dir)
 
-    for root, dirs, files in os.walk(args.output_dir_mesh):
-        if not dirs:
-            working_dir = os.path.relpath(root, pathlib.Path().resolve())
-            run_mesh_add_eyeball.start_add_mesh(working_dir)
-            print(f"finished with generating dir {working_dir}")
+    # for root, dirs, files in os.walk(args.output_dir_mesh):
+    #    if not dirs:
+    #        working_dir = os.path.relpath(root, pathlib.Path().resolve())
+    #        run_mesh_add_eyeball.start_add_mesh(working_dir)
+    #        print(f"finished with generating dir {working_dir}")
