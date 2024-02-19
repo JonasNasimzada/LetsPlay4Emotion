@@ -33,7 +33,7 @@ from torchvision.transforms.v2 import RandomAffine
 
 
 class NeuralNetworkModel(LightningModule):
-    def __init__(self, num_classes, train_dataset_file, val_dataset_file, nn_model):
+    def __init__(self, num_classes, metric_type, train_dataset_file, val_dataset_file, nn_model):
         super().__init__()
         self.train_dataset_file = train_dataset_file
         self.val_dataset_file = val_dataset_file
@@ -42,12 +42,12 @@ class NeuralNetworkModel(LightningModule):
         self.batch_size = 32
         self.num_worker = 8
 
-        self.f1_score = F1Score(task="multiclass", num_classes=num_classes)
-        self.accuracy = Accuracy(task="multiclass", num_classes=num_classes)
-        self.confusion_matrix = ConfusionMatrix(task="multiclass", num_classes=num_classes)
-        self.auroc = AUROC(task="multiclass", num_classes=num_classes)
-        self.precision = Precision(task="multiclass", average='macro', num_classes=num_classes)
-        self.recall = Recall(task="multiclass", average='macro', num_classes=3)
+        self.f1_score = F1Score(task=metric_type, num_classes=num_classes)
+        self.accuracy = Accuracy(task=metric_type, num_classes=num_classes)
+        self.confusion_matrix = ConfusionMatrix(task=metric_type, num_classes=num_classes)
+        self.auroc = AUROC(task=metric_type, num_classes=num_classes)
+        self.precision = Precision(task=metric_type, average='macro', num_classes=num_classes)
+        self.recall = Recall(task=metric_type, average='macro', num_classes=num_classes)
 
         self.train_output_list = []
         self.validation_output_list = []
@@ -116,7 +116,7 @@ class NeuralNetworkModel(LightningModule):
 
     def val_dataloader(self):
         train_dataset = labeled_video_dataset(self.val_dataset_file, clip_sampler=make_clip_sampler('uniform', 2),
-                                              transform=video_transform, decode_audio=False)
+                                              decode_audio=False)
         loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker)
         return loader
 
@@ -190,6 +190,7 @@ if __name__ == '__main__':
     data_infix = ""
     classes = None
     version = "v1"
+    metric = None
 
     if args.dataset_infix != "":
         data_infix = f"{args.dataset_infix}_"
@@ -198,9 +199,11 @@ if __name__ == '__main__':
         version = f"v{args.version}_"
 
     if args.type == 'binary':
-        classes = 2
+        classes = 1
+        metric = "binary"
     elif args.type == 'multi':
         classes = 5
+        metric = "multiclass"
 
     side_size = 256
     mean = [0.45, 0.45, 0.45]
@@ -259,6 +262,7 @@ if __name__ == '__main__':
 
     model = NeuralNetworkModel(
         num_classes=classes,
+        metric_type=metric,
         train_dataset_file=train_set,
         val_dataset_file=val_set,
         nn_model=model_resnet,
