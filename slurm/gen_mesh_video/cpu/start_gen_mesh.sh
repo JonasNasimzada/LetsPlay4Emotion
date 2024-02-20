@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Enter list of uv_materials (Person_1,....,) (separated by spaces):"
+echo "Enter list of uv_materials (None, Person_1,...) (separated by spaces):"
 read -r uv_material
 
 echo "Enter the camera view (Front or Side) (separated by spaces):"
