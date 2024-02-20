@@ -92,7 +92,6 @@ if __name__ == '__main__':
     parser.add_argument('--batch_files', nargs='+', default=[])
 
     args = parser.parse_args()
-    # enable_gpus("CUDA")
     input_dir = "/usr/local/videos_input"
     output_dir = "/usr/local/videos_output"
     for dir_name in args.batch_files:
