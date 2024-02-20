@@ -33,11 +33,13 @@ def split_list_into_parts(input_list, n, y):
 
 
 class BlenderProcess(mp.Process):
-    def __init__(self, process_number, directories, blender_file):
+    def __init__(self, process_number, directories, blender_file, uv_texture, camera):
         super().__init__()
         self.blender_file = blender_file
         self.process_number = process_number
         self.directories = directories
+        self.uv_texture = uv_texture
+        self.camera = camera
 
     def run(self):
         print(f"Process {self.process_number} is running")
@@ -58,6 +60,8 @@ class BlenderProcess(mp.Process):
                   f"/usr/local/blend_file/{self.blender_file} " \
                   f"--python /usr/local/Blender_script/generate_mesh_video.py " \
                   f"-- " \
+                  f"--uv_material {' '.join(self.uv_texture)} " \
+                  f"--camera {' '.join(self.camera)} " \
                   f"--batch_files {' '.join(self.directories)}"
         print(f"command: {command}")
         try:
@@ -73,6 +77,8 @@ def main():
     parser.add_argument('--thread_num', type=int, default=1)
     parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--current_batch', type=int, default=1)
+    parser.add_argument('--uv_material', nargs='+', default=[])
+    parser.add_argument('--camera', nargs='+', default=[])
 
     args = parser.parse_args()
 

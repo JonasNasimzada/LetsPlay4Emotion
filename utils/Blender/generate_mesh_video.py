@@ -46,12 +46,7 @@ class ArgumentParserForBlender(argparse.ArgumentParser):
         return super().parse_args(args=self._get_argv_after_doubledash())
 
 
-uv_material_list = ["Person_0"]
-camera_position_list = ["Front"]
-rendered_video = []
-
-
-def load_and_render_mesh(input_path, file_path, output_path):
+def load_and_render_mesh(input_path, file_path, output_path, uv_material_list, camera_position_list):
     file_dir = os.path.basename(os.path.normpath(file_path))
     bpy.context.scene.render.engine = 'BLENDER_EEVEE'
     bpy.context.scene.eevee.taa_render_samples = 1
@@ -88,6 +83,8 @@ def load_and_render_mesh(input_path, file_path, output_path):
 
 if __name__ == '__main__':
     parser = ArgumentParserForBlender()
+    parser.add_argument('--uv_material', nargs='+', default=[])
+    parser.add_argument('--camera', nargs='+', default=[])
     parser.add_argument('--batch_files', nargs='+', default=[])
 
     args = parser.parse_args()
@@ -95,4 +92,4 @@ if __name__ == '__main__':
     input_dir = "/usr/local/videos_input"
     output_dir = "/usr/local/videos_output"
     for dir_name in args.batch_files:
-        load_and_render_mesh(input_dir, dir_name, output_dir)
+        load_and_render_mesh(input_dir, dir_name, output_dir, args.uv_material, args.camera)
