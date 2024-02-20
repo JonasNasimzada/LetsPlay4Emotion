@@ -6,6 +6,9 @@ read -r uv_material
 echo "Enter the camera views (Front or Side) (separated by spaces):"
 read -r camera
 
+echo "Enter blend file version:"
+read -r blend_file_version
+
 echo "Enter amount of nodes:"
 read -r number
 
@@ -34,7 +37,7 @@ for ((i = 1; i <= number; i++)); do
         sbatch_command+=" --dependency=$dependency"
     fi
     sbatch_command+=" --wrap=\"python generating_threading.py \
-        --blend_file mesh_sequence_v3.blend \
+        --blend_file mesh_sequence_v$blend_file_version.blend \
         --thread_num 16 \
         --batch_size $number \
         --current_batch $((i-1)) \
@@ -44,5 +47,5 @@ for ((i = 1; i <= number; i++)); do
 done
 
 echo ""
-sleep 2
+sleep 3
 squeue -u jnasimzada
