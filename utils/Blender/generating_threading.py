@@ -106,7 +106,8 @@ def main():
             shutil.copy(f"/groups/constantin_students/jnasimzada/blender/{args.blend_file}",
                         output_blender_file_path)
         end_idx = start_idx + dirs_per_process + (1 if i < remaining_dirs else 0)
-        process = BlenderProcess(i, mesh_list_batch[start_idx:end_idx], thread_blender_file)
+        process = BlenderProcess(i, mesh_list_batch[start_idx:end_idx], thread_blender_file, args.uv_material,
+                                 args.camera)
         processes.append(process)
         print(f"start process: {thread_blender_file}")
         process.start()

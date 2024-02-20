@@ -25,6 +25,7 @@ if [[ -n "$dependency" ]]; then
     else
         echo "No dependency entered"
     fi
+echo ""
 
 for ((i = 1; i <= number; i++)); do
 
@@ -41,3 +42,5 @@ for ((i = 1; i <= number; i++)); do
         --camera ${camera_list[*]}\""
     eval "$sbatch_command"
 done
+
+squeue -u jnasimzada
