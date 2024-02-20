@@ -34,7 +34,7 @@ for ((i = 1; i <= number; i++)); do
 
     sbatch_command="sbatch --time 1-1 --cpus-per-task=64"
     if [[ -n "$dependency" ]]; then
-        sbatch_command+=" --dependency=$dependency"
+        sbatch_command+=" --dependency= afterok:$dependency"
     fi
     sbatch_command+=" --wrap=\"python generating_threading.py \
         --blend_file mesh_sequence_v$blend_file_version.blend \
@@ -47,5 +47,5 @@ for ((i = 1; i <= number; i++)); do
 done
 
 echo ""
-sleep 3
+sleep 1
 squeue -u jnasimzada
