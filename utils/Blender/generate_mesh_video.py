@@ -71,12 +71,15 @@ def load_and_render_mesh(input_path, file_path, output_path, uv_material_list, c
         os.makedirs(uv_material_dir, exist_ok=True)
         for camera_position in camera_position_list:
             camera_position_dir = f"{uv_material_dir}/{camera_position}"
-            os.makedirs(camera_position_dir, exist_ok=True)
-            bpy.context.scene.camera = bpy.data.objects[camera_position]
             output_video = f"{file_dir}-{uv_material}-{camera_position}.mp4"
+            output_path = f"{camera_position_dir}/{output_video}"
+            os.makedirs(camera_position_dir, exist_ok=True)
+            if os.path.isfile(output_video):
+                continue
             bpy.data.scenes[0].render.filepath = f"/usr/local/work/{output_video}"
+            bpy.context.scene.camera = bpy.data.objects[camera_position]
             bpy.ops.render.render(animation=True, write_still=True)
-            shutil.move(f"/usr/local/work/{output_video}", f"{camera_position_dir}/{output_video}")
+            shutil.move(f"/usr/local/work/{output_video}", output_path)
 
     bpy.ops.object.delete()
 
