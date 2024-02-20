@@ -43,4 +43,6 @@ for ((i = 1; i <= number; i++)); do
     eval "$sbatch_command"
 done
 
+echo ""
+sleep 2
 squeue -u jnasimzada
