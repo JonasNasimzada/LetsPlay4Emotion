@@ -3,7 +3,7 @@
 echo "Enter list of uv-textures (None, Person_0,...) (separated by spaces):"
 read -r uv_material
 
-echo "Enter the camera view (Front or Side) (separated by spaces):"
+echo "Enter the camera views (Front or Side) (separated by spaces):"
 read -r camera
 
 echo "Enter amount of nodes:"
@@ -17,7 +17,7 @@ IFS=' ' read -r -a uv_material_list <<< "$uv_material"
 IFS=' ' read -r -a camera_list <<< "$camera"
 
 echo "Processing uv-textures: ${uv_material_list[*]}"
-echo "Processing camera view: ${camera_list[*]}"
+echo "Processing camera views: ${camera_list[*]}"
 echo "Processing amount of nodes: $number"
 echo "Processing camera view: ${camera_list[*]}"
 if [[ -n "$dependency" ]]; then
