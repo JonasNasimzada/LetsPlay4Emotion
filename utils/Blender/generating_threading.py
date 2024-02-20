@@ -6,6 +6,8 @@ import time
 
 import torch.multiprocessing as mp
 
+forbidden_folder = ".ipynb_checkpoints"
+
 
 def split_list_into_parts(input_list, n, y):
     # Calculate the length of each part
@@ -43,6 +45,8 @@ class BlenderProcess(mp.Process):
 
     def run(self):
         print(f"Process {self.process_number} is running")
+        if forbidden_folder is self.directories:
+            self.directories.remove(forbidden_folder)
         self.execute_command()
 
     def execute_command(self):
@@ -63,9 +67,9 @@ class BlenderProcess(mp.Process):
                   f"--uv_material {' '.join(self.uv_texture)} " \
                   f"--camera {' '.join(self.camera)} " \
                   f"--batch_files {' '.join(self.directories)}"
-        print(f"command: {command}")
         try:
             subprocess.run(command, capture_output=True, shell=True, check=True)
+            print(f"successful run for dirs: {' '.join(self.directories)} ")
         except subprocess.CalledProcessError as e:
             print(f"Error executing command in Process {self.process_number} for directory {self.directories}: {e}")
 
