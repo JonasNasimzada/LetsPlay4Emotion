@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Enter list of uv-textures (None, Person_0,...) (separated by spaces):"
+echo "Enter list of uv-textures (Default, Person_0,...) (separated by spaces):"
 read -r uv_material
 
 echo "Enter the camera views (Front or Side) (separated by spaces):"
