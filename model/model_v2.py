@@ -38,7 +38,7 @@ class NeuralNetworkModel(LightningModule):
         self.val_dataset_file = val_dataset_file
         self.conv_layers = nn_model
         self.lr = 1e-3
-        self.batch_size = 32
+        self.batch_size = 8
         self.num_worker = 8
 
         self.f1_score = F1Score(task=metric_type, num_classes=num_classes)
