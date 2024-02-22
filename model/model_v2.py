@@ -4,7 +4,6 @@ import pandas as pd
 import seaborn as sns
 import torch
 import torch.nn as nn
-import torchmetrics
 from matplotlib import pyplot as plt
 from pytorch_lightning import Trainer, LightningModule
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
@@ -180,6 +179,7 @@ if __name__ == '__main__':
     parser.add_argument("--mode", required=True, choices=['train', 'pred'])
     parser.add_argument("--type", required=True, choices=['binary', 'multi'])
     parser.add_argument("--dataset_infix", default="", help='optional infix for choosing dataset')
+    parser.add_argument("--logger_comment", default="")
     parser.add_argument("--version", default="", type=int)
     parser.add_argument("--devices", default=1, type=int)
     parser.add_argument("--epochs", default=100, type=int)
@@ -230,7 +230,7 @@ if __name__ == '__main__':
             ]
         ),
     )
-    model_resnet = torch.hub.load('facebookresearch/pytorchvideo', 'slow_r50', pretrained=True)
+    model_resnet = torch.hub.load('facebookresearch/pytorchvideo', 'slow_r50', pretrained=True, force_reload=True)
     model_resnet.blocks[5].proj = nn.Linear(in_features=2048, out_features=classes, bias=True)
 
     checkpoint_callback = ModelCheckpoint(monitor='val_loss', dirpath=f'checkpoints_{version}{data_suffix}',
@@ -240,7 +240,8 @@ if __name__ == '__main__':
     lr_monitor = LearningRateMonitor(logging_interval='epoch')
 
     logger_name = f"model_{version}{data_infix}{args.type}"
-    logger = TensorBoardLogger("model_logger", name=logger_name)
+    logger = TensorBoardLogger("model_logger", name=logger_name,
+                               version='version_${version}' + f"_{logger_name}_{args.logger_comment}")
     print(f"the logger name is: {logger_name}")
 
     torch.set_float32_matmul_precision('high')
