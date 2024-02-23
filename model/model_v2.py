@@ -14,8 +14,8 @@ from pytorchvideo.transforms import (
     UniformTemporalSubsample
 )
 from pytorchvideo.transforms import (
-    RandomShortSideScale
-
+    RandomShortSideScale,
+    ShortSideScale
 )
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
@@ -23,6 +23,7 @@ from torchmetrics import Precision, Recall, F1Score, Accuracy, ConfusionMatrix, 
 from torchvision.transforms import Compose, Lambda
 from torchvision.transforms import (
     RandomCrop,
+    CenterCrop,
     RandomHorizontalFlip
 )
 from torchvision.transforms._transforms_video import (
@@ -37,7 +38,9 @@ class NeuralNetworkModel(LightningModule):
         self.train_dataset_file = train_dataset_file
         self.val_dataset_file = val_dataset_file
         self.conv_layers = nn_model
+        # Learning Rate Rumprobieren, 1e-4 ist mein standard auf 2d bildern und 3d Volumen
         self.lr = 1e-3
+        # Kann man ein wenig noch hochschrauben - 8BS -> 32GB VRAM
         self.batch_size = 8
         self.num_worker = 8
 
@@ -51,6 +54,7 @@ class NeuralNetworkModel(LightningModule):
         self.train_output_list = []
         self.validation_output_list = []
 
+        # Wenn binary dann, https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, x):
@@ -230,6 +234,22 @@ if __name__ == '__main__':
             ]
         ),
     )
+
+    video_transform_val = ApplyTransformToKey(
+        key="video",
+        transform=Compose(
+            [
+                UniformTemporalSubsample(num_frames),
+                Lambda(lambda x: x / 255.0),
+                NormalizeVideo(mean, std),
+                ShortSideScale(
+                    256,
+                ),
+                CenterCrop(256),
+            ]
+        ),
+    )
+    
     model_resnet = torch.hub.load('facebookresearch/pytorchvideo', 'slow_r50', pretrained=True, force_reload=True)
     model_resnet.blocks[5].proj = nn.Linear(in_features=2048, out_features=classes, bias=True)
 
