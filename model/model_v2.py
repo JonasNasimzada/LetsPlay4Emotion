@@ -33,29 +33,36 @@ from torchvision.transforms.v2 import RandomAffine
 
 
 class NeuralNetworkModel(LightningModule):
-    def __init__(self, num_classes, metric_type, train_dataset_file, val_dataset_file, nn_model):
+    def __init__(self, num_classes, model_type, train_dataset_file, val_dataset_file, nn_model, augmentation_train,
+                 augmentation_val):
         super().__init__()
         self.train_dataset_file = train_dataset_file
         self.val_dataset_file = val_dataset_file
+        self.augmentation_train = augmentation_train
+        self.augmentation_val = augmentation_val
         self.conv_layers = nn_model
         # Learning Rate Rumprobieren, 1e-4 ist mein standard auf 2d bildern und 3d Volumen
-        self.lr = 1e-3
+        self.lr = 1e-4
         # Kann man ein wenig noch hochschrauben - 8BS -> 32GB VRAM
-        self.batch_size = 8
+        self.batch_size = 16
         self.num_worker = 8
 
-        self.f1_score = F1Score(task=metric_type, num_classes=num_classes)
-        self.accuracy = Accuracy(task=metric_type, num_classes=num_classes)
-        self.confusion_matrix = ConfusionMatrix(task=metric_type, num_classes=num_classes)
-        self.auroc = AUROC(task=metric_type, num_classes=num_classes)
-        self.precision = Precision(task=metric_type, average='macro', num_classes=num_classes)
-        self.recall = Recall(task=metric_type, average='macro', num_classes=num_classes)
+        self.f1_score = F1Score(task=model_type, num_classes=num_classes)
+        self.accuracy = Accuracy(task=model_type, num_classes=num_classes)
+        self.auroc = AUROC(task=model_type, num_classes=num_classes)
+        self.precision = Precision(task=model_type, average='macro', num_classes=num_classes)
+        self.recall = Recall(task=model_type, average='macro', num_classes=num_classes)
 
-        self.train_output_list = []
+        if self.model_type is "binary":
+            self.confusion_matrix = ConfusionMatrix(task=model_type, num_classes=(++num_classes))
+            self.loss = nn.BCELoss
+        else:
+            self.confusion_matrix = ConfusionMatrix(task=model_type, num_classes=num_classes)
+            self.loss = nn.CrossEntropyLoss()
+
         self.validation_output_list = []
 
         # Wenn binary dann, https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html
-        self.loss = nn.CrossEntropyLoss()
 
     def forward(self, x):
         x = self.conv_layers(x)
@@ -68,7 +75,7 @@ class NeuralNetworkModel(LightningModule):
 
     def train_dataloader(self):
         train_dataset = labeled_video_dataset(self.train_dataset_file, clip_sampler=make_clip_sampler('uniform', 2),
-                                              transform=video_transform, decode_audio=False)
+                                              transform=self.augmentation_train, decode_audio=False)
         loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker)
         return loader
 
@@ -83,7 +90,6 @@ class NeuralNetworkModel(LightningModule):
     def training_step(self, batch, batch_idx):
         loss, output_network, input_label = self._common_step(batch, batch_idx)
         pred = {"loss": loss, "output_network": output_network, "input_label": input_label}
-        self.train_output_list.append(pred)
 
         self.log_dict(
             {
@@ -96,31 +102,10 @@ class NeuralNetworkModel(LightningModule):
         )
         return pred
 
-    def on_train_epoch_end(self):
-        output_network = torch.cat([x["output_network"] for x in self.train_output_list])
-        input_label = torch.cat([x["input_label"] for x in self.train_output_list])
-        self.f1_score(output_network, input_label)
-        self.accuracy(output_network, input_label)
-        self.precision(output_network, input_label)
-        self.auroc(output_network, input_label)
-        self.log_dict(
-            {
-                "train_f1_score": self.f1_score,
-                "train_accuracy": self.accuracy,
-                "train_precision": self.precision,
-                "train_auroc": self.auroc,
-            },
-            on_step=False,
-            on_epoch=True,
-            prog_bar=True,
-            sync_dist=True
-        )
-        self.train_output_list.clear()
-
     def val_dataloader(self):
-        train_dataset = labeled_video_dataset(self.val_dataset_file, clip_sampler=make_clip_sampler('uniform', 2),
-                                              decode_audio=False)
-        loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker)
+        val_dataset = labeled_video_dataset(self.val_dataset_file, clip_sampler=make_clip_sampler('uniform', 2),
+                                            transform=self.augmentation_val, decode_audio=False)
+        loader = DataLoader(val_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker)
         return loader
 
     def validation_step(self, batch, batch_idx):
@@ -217,7 +202,7 @@ if __name__ == '__main__':
     sampling_rate = 8
     frames_per_second = 25
 
-    video_transform = ApplyTransformToKey(
+    video_transform_train = ApplyTransformToKey(
         key="video",
         transform=Compose(
             [
@@ -249,7 +234,7 @@ if __name__ == '__main__':
             ]
         ),
     )
-    
+
     model_resnet = torch.hub.load('facebookresearch/pytorchvideo', 'slow_r50', pretrained=True, force_reload=True)
     model_resnet.blocks[5].proj = nn.Linear(in_features=2048, out_features=classes, bias=True)
 
@@ -283,11 +268,12 @@ if __name__ == '__main__':
 
     model = NeuralNetworkModel(
         num_classes=classes,
-        metric_type=metric,
+        model_type=metric,
         train_dataset_file=train_set,
         val_dataset_file=val_set,
         nn_model=model_resnet,
-
+        augmentation_val=video_transform_val,
+        augmentation_train=video_transform_train
     )
     print(f"this train set is gonna be used: {train_set}")
     print(f"this val set is gonna be used: {val_set}")

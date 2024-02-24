@@ -37,9 +37,10 @@ def load_and_render_mesh(input_path, file_path, output_path, uv_material_list, c
 
     # render mesh for different uv-textures and camera-positions
     for uv_material in uv_material_list:
-        uv_texture = blend.materials[uv_material]
         if uv_material == "Default":
             uv_texture = blend.materials["Default OBJ"]
+        else:
+            uv_texture = blend.materials[uv_material]
         head.active_material = uv_texture
         for camera_position in camera_position_list:
             camera_position_dir = f"{output_path}/{uv_material}/{camera_position}"

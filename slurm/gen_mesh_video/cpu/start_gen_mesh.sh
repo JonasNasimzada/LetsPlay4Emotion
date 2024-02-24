@@ -29,6 +29,8 @@ if [[ -n "$dependency" ]]; then
     fi
 echo ""
 
+conda activate py3.9v2
+
 for ((i = 1; i <= number; i++)); do
 
     sbatch_command="sbatch --time 1-1 --cpus-per-task=64"
