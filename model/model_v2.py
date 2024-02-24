@@ -56,11 +56,11 @@ class NeuralNetworkModel(LightningModule):
         self.recall = Recall(task=self.model_type, average='macro', num_classes=num_classes)
         self.confusion_matrix = ConfusionMatrix(task=self.model_type, num_classes=num_classes)
 
-        # if self.model_type == "binary":
-        #    self.loss = nn.BCELoss()
-        #    self.sigmoid = nn.Sigmoid()
-        # else:
-        self.loss = nn.CrossEntropyLoss()
+        if self.model_type == "binary":
+            self.loss = nn.BCELoss()
+            self.sigmoid = nn.Sigmoid()
+        else:
+            self.loss = nn.CrossEntropyLoss()
 
         self.validation_output_list = []
 
@@ -83,12 +83,13 @@ class NeuralNetworkModel(LightningModule):
 
     def _common_step(self, batch, batch_idx):
         video, input_label = batch['video'], batch['label']
-        input_label = input_label.to(torch.int64)
         output_network = self.forward(video)
-        # if self.model_type == "binary":
-        #     loss = self.loss(self.sigmoid(output_network), input_label.unsqueeze(-2))
-        # else:
-        loss = self.loss(output_network, input_label)
+        if self.model_type == "binary":
+            input_label = input_label.view(input_label.size(0), -1)
+            loss = self.loss(self.sigmoid(output_network), input_label.unsqueeze(-2))
+        else:
+            input_label = input_label.to(torch.int64)
+            loss = self.loss(output_network, input_label)
         return loss, output_network, input_label
 
     def training_step(self, batch, batch_idx):
