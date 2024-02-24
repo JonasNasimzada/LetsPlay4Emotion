@@ -191,7 +191,7 @@ if __name__ == '__main__':
         version = f"v{args.version}_"
 
     if args.type == 'binary':
-        classes = 1
+        classes = 2
         metric = "binary"
     elif args.type == 'multi':
         classes = 5
