@@ -83,10 +83,10 @@ class NeuralNetworkModel(LightningModule):
 
     def _common_step(self, batch, batch_idx):
         video, input_label = batch['video'], batch['label']
-        # input_label = input_label.to(torch.int64)
+        input_label = input_label.to(torch.int64)
         output_network = self.forward(video)
         if self.model_type == "binary":
-            loss = self.loss(self.sigmoid(output_network), input_label)
+            loss = self.loss(self.sigmoid(output_network), input_label.unsqueeze(-1))
         else:
             loss = self.loss(output_network, input_label)
         return loss, output_network, input_label
