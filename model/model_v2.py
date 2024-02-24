@@ -53,7 +53,7 @@ class NeuralNetworkModel(LightningModule):
         self.precision = Precision(task=model_type, average='macro', num_classes=num_classes)
         self.recall = Recall(task=model_type, average='macro', num_classes=num_classes)
 
-        if self.model_type == "binary":
+        if model_type == "binary":
             self.confusion_matrix = ConfusionMatrix(task=model_type, num_classes=(++num_classes))
             self.loss = nn.BCELoss
         else:
