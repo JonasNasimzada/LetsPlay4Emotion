@@ -1,4 +1,5 @@
 import argparse
+import os
 
 import pandas as pd
 import seaborn as sns
@@ -174,6 +175,8 @@ if __name__ == '__main__':
     parser.add_argument("--epochs", default=100, type=int)
     parser.add_argument("--precision", default=32, type=int)
     args = parser.parse_args()
+
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
     data_suffix = args.type
     data_infix = ""
