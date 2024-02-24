@@ -47,7 +47,7 @@ class NeuralNetworkModel(LightningModule):
         # Learning Rate Rumprobieren, 1e-4 ist mein standard auf 2d bildern und 3d Volumen
         self.lr = 1e-4
         # Kann man ein wenig noch hochschrauben - 8BS -> 32GB VRAM
-        self.batch_size = 16
+        self.batch_size = 32
         self.num_worker = 8
 
         self.f1_score = F1Score(task=self.model_type, num_classes=num_classes)
