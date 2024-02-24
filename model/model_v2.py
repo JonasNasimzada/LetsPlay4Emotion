@@ -86,7 +86,7 @@ class NeuralNetworkModel(LightningModule):
         input_label = input_label.to(torch.int64)
         if self.model_type == "binary":
             output_network = self.forward(video)
-            loss = self.loss(self.sigmoid(output_network), input_label)
+            loss = self.loss(self.sigmoid(output_network), input_label.unsqueeze(0))
         else:
             output_network = self.forward(video)
             loss = self.loss(output_network, input_label)
