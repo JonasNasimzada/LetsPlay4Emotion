@@ -243,7 +243,7 @@ if __name__ == '__main__':
     )
 
     model_resnet = torch.hub.load('facebookresearch/pytorchvideo', 'slow_r50', pretrained=True)
-    model_resnet.blocks[5].proj = nn.Linear(in_features=2048, out_features=classes, bias=True)
+    model_resnet.blocks[5].proj = nn.Linear(in_features=2048, out_features=1, bias=True)
 
     checkpoint_callback = ModelCheckpoint(monitor='val_loss', dirpath=f'checkpoints_{version}{data_suffix}',
                                           filename=f"ckpt-{version}{data_infix}{data_suffix}" + '-{epoch:02d}-{'
