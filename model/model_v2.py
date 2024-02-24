@@ -57,7 +57,7 @@ class NeuralNetworkModel(LightningModule):
         self.confusion_matrix = ConfusionMatrix(task=self.model_type, num_classes=num_classes)
 
         if self.model_type == "binary":
-            self.loss = nn.BCELoss
+            self.loss = nn.BCELoss()
             self.sigmoid = nn.Sigmoid()
         else:
             self.loss = nn.CrossEntropyLoss()
@@ -241,7 +241,7 @@ if __name__ == '__main__':
         ),
     )
 
-    model_resnet = torch.hub.load('facebookresearch/pytorchvideo', 'slow_r50', pretrained=True, force_reload=True)
+    model_resnet = torch.hub.load('facebookresearch/pytorchvideo', 'slow_r50', pretrained=True)
     model_resnet.blocks[5].proj = nn.Linear(in_features=2048, out_features=classes, bias=True)
 
     checkpoint_callback = ModelCheckpoint(monitor='val_loss', dirpath=f'checkpoints_{version}{data_suffix}',
