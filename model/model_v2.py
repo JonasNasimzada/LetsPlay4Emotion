@@ -58,7 +58,7 @@ class NeuralNetworkModel(LightningModule):
         self.confusion_matrix = ConfusionMatrix(task=self.model_type, num_classes=num_classes)
 
         if self.model_type == "binary":
-            self.loss = nn.BCELoss()
+            self.loss = nn.BCEWithLogitsLoss()
             self.sigmoid = nn.Sigmoid()
         else:
             self.loss = nn.CrossEntropyLoss()
@@ -85,9 +85,9 @@ class NeuralNetworkModel(LightningModule):
     def _common_step(self, batch, batch_idx):
         video, input_label = batch['video'], batch['label']
         if self.model_type == "binary":
-            input_label = input_label.to(torch.float32)
+            input_label = input_label.to(torch.int64)
             output_network = self.forward(video)
-            loss = self.loss(self.sigmoid(output_network).squeeze(-1), input_label.view(input_label.size(0), -1))
+            loss = self.loss(output_network, input_label)
         else:
             input_label = input_label.to(torch.int64)
             output_network = self.forward(video)
