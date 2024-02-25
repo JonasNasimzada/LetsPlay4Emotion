@@ -52,6 +52,7 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
 
     for root, dirs, files in os.walk(args.input_directory):
+        print(dirs)
         for directory in dirs:
             if directory.lower() == "detections":
                 chunk_data = (f"{root}/{directory}", os.path.basename(root), args.output_dir)
