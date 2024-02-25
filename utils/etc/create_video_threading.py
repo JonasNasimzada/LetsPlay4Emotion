@@ -18,6 +18,7 @@ def create_video(chunk_data):
         frame = cv2.imread(f"{frame_path}/{frame}")
         video.write(frame)
     video.release()
+    print(f"video: {output_path}")
 
 
 def worker(queue):
