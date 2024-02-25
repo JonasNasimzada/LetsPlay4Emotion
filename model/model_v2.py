@@ -56,7 +56,6 @@ class NeuralNetworkModel(LightningModule):
 
         if self.model_type == "binary":
             self.loss = nn.BCEWithLogitsLoss()
-            self.sigmoid = nn.Sigmoid()
         else:
             self.loss = nn.CrossEntropyLoss()
 
