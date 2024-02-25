@@ -31,7 +31,6 @@ from torchvision.transforms._transforms_video import (
     NormalizeVideo
 )
 from torchvision.transforms.v2 import RandomAffine
-import pytorchvideo.models.resnet
 
 
 class NeuralNetworkModel(LightningModule):
@@ -44,9 +43,7 @@ class NeuralNetworkModel(LightningModule):
         self.augmentation_train = augmentation_train
         self.augmentation_val = augmentation_val
         self.conv_layers = nn_model
-        # Learning Rate Rumprobieren, 1e-4 ist mein standard auf 2d bildern und 3d Volumen
         self.lr = 1e-4
-        # Kann man ein wenig noch hochschrauben - 8BS -> 32GB VRAM
         self.batch_size = 32
         self.num_worker = 8
 
@@ -64,8 +61,6 @@ class NeuralNetworkModel(LightningModule):
             self.loss = nn.CrossEntropyLoss()
 
         self.validation_output_list = []
-
-        # Wenn binary dann, https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html
 
     def forward(self, x):
         x = self.conv_layers(x)
@@ -175,6 +170,7 @@ if __name__ == '__main__':
     parser.add_argument("--mode", required=True, choices=['train', 'pred'])
     parser.add_argument("--type", required=True, choices=['binary', 'multi'])
     parser.add_argument("--dataset_infix", default="", help='optional infix for choosing dataset')
+    parser.add_argument("--dataset_path", default="datasets")
     parser.add_argument("--logger_comment", default="")
     parser.add_argument("--version", default="", type=int)
     parser.add_argument("--devices", default=1, type=int)
@@ -255,7 +251,7 @@ if __name__ == '__main__':
 
     logger_name = f"model_{version}{data_infix}{args.type}"
     logger = TensorBoardLogger("model_logger", name=logger_name,
-                               version='version_${version}' + f"_{logger_name}_{args.logger_comment}")
+                               version=f"version_{version}_{logger_name}_{args.logger_comment}")
     print(f"the logger name is: {logger_name}")
 
     torch.set_float32_matmul_precision('high')
@@ -272,8 +268,8 @@ if __name__ == '__main__':
         logger=logger
     )
 
-    train_set = f"datasets/train-{data_infix}{data_suffix}.csv"
-    val_set = f"datasets/val-{data_infix}{data_suffix}.csv"
+    train_set = f"{args.dataset_path}/train-{data_infix}{data_suffix}.csv"
+    val_set = f"{args.dataset_path}/val-{data_infix}{data_suffix}.csv"
 
     model = NeuralNetworkModel(
         num_classes=classes,
