@@ -13,7 +13,7 @@ def create_video(chunk_data):
     image = cv2.imread(f"{frame_path}/{png_files[0]}")
     height, width, _ = image.shape
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    video = cv2.VideoWriter(f"{output_path}/{video_name}", fourcc, fps, (height, width))
+    video = cv2.VideoWriter(f"{output_path}/{video_name}.mp4", fourcc, fps, (height, width))
     for frame in png_files:
         frame = cv2.imread(f"{frame_path}/{frame}")
         video.write(frame)
@@ -52,7 +52,6 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
 
     for root, dirs, files in os.walk(args.input_directory):
-        print(dirs)
         for directory in dirs:
             if directory.lower() == "detections":
                 chunk_data = (f"{root}/{directory}", os.path.basename(root), args.output_dir)
