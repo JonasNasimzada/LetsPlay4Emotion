@@ -43,7 +43,7 @@ class NeuralNetworkModel(LightningModule):
         self.augmentation_train = augmentation_train
         self.augmentation_val = augmentation_val
         self.conv_layers = nn_model
-        self.lr = 1e-4
+        self.lr = 0.05
         self.batch_size = 32
         self.num_worker = 8
         self.clip_duration = clip_duration
@@ -67,7 +67,7 @@ class NeuralNetworkModel(LightningModule):
         return x
 
     def configure_optimizers(self):
-        opt = torch.optim.AdamW(params=self.parameters(), lr=self.lr)
+        opt = torch.optim.SGD(params=self.parameters(), lr=self.lr, weight_decay=1e-5)
         scheduler = CosineAnnealingLR(opt, T_max=10, eta_min=1e-6, last_epoch=-1)
         return {"optimizer": opt, "lr_scheduler": scheduler}
 
@@ -216,10 +216,12 @@ if __name__ == '__main__':
                 UniformTemporalSubsample(num_frames),
                 Lambda(lambda x: x / 255.0),
                 NormalizeVideo(mean, std),
-                ShortSideScale(
-                    size=side_size
+                RandomShortSideScale(
+                    min_size=256,
+                    max_size=320,
                 ),
-                CenterCropVideo(crop_size=(crop_size, crop_size))
+                RandomCrop(256),
+                RandomHorizontalFlip(p=0.5),
             ]
         ),
     )
