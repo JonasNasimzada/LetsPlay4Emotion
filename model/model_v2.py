@@ -28,14 +28,14 @@ from torchvision.transforms import (
     RandomHorizontalFlip
 )
 from torchvision.transforms._transforms_video import (
-    NormalizeVideo
+    NormalizeVideo, CenterCropVideo
 )
 from torchvision.transforms.v2 import RandomAffine
 
 
 class NeuralNetworkModel(LightningModule):
     def __init__(self, num_classes, model_type, train_dataset_file, val_dataset_file, nn_model, augmentation_train,
-                 augmentation_val):
+                 augmentation_val, clip_duration):
         super().__init__()
         self.model_type = model_type
         self.train_dataset_file = train_dataset_file
@@ -46,6 +46,7 @@ class NeuralNetworkModel(LightningModule):
         self.lr = 1e-4
         self.batch_size = 32
         self.num_worker = 8
+        self.clip_duration = clip_duration
 
         self.f1_score = F1Score(task=self.model_type, num_classes=num_classes)
         self.accuracy = Accuracy(task=self.model_type, num_classes=num_classes)
@@ -71,7 +72,8 @@ class NeuralNetworkModel(LightningModule):
         return {"optimizer": opt, "lr_scheduler": scheduler}
 
     def train_dataloader(self):
-        train_dataset = labeled_video_dataset(self.train_dataset_file, clip_sampler=make_clip_sampler('uniform', 2),
+        train_dataset = labeled_video_dataset(self.train_dataset_file,
+                                              clip_sampler=make_clip_sampler('uniform', self.clip_duration),
                                               transform=self.augmentation_train, decode_audio=False)
         loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker)
         return loader
@@ -104,7 +106,8 @@ class NeuralNetworkModel(LightningModule):
         return pred
 
     def val_dataloader(self):
-        val_dataset = labeled_video_dataset(self.val_dataset_file, clip_sampler=make_clip_sampler('uniform', 2),
+        val_dataset = labeled_video_dataset(self.val_dataset_file,
+                                            clip_sampler=make_clip_sampler('uniform', self.clip_duration),
                                             transform=self.augmentation_val, decode_audio=False)
         loader = DataLoader(val_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker)
         return loader
@@ -211,15 +214,12 @@ if __name__ == '__main__':
         transform=Compose(
             [
                 UniformTemporalSubsample(num_frames),
-                RandomAffine(degrees=20, translate=(0, 0.1), shear=(-15, 15, -15, 15)),
                 Lambda(lambda x: x / 255.0),
                 NormalizeVideo(mean, std),
-                RandomShortSideScale(
-                    min_size=256,
-                    max_size=320,
+                ShortSideScale(
+                    size=side_size
                 ),
-                RandomCrop(256),
-                RandomHorizontalFlip(p=0.5),
+                CenterCropVideo(crop_size=(crop_size, crop_size))
             ]
         ),
     )
@@ -232,12 +232,13 @@ if __name__ == '__main__':
                 Lambda(lambda x: x / 255.0),
                 NormalizeVideo(mean, std),
                 ShortSideScale(
-                    256,
+                    size=side_size
                 ),
-                CenterCrop(256),
+                CenterCropVideo(crop_size=(crop_size, crop_size))
             ]
         ),
     )
+    video_duration = (num_frames * sampling_rate) / frames_per_second
 
     model_resnet = torch.hub.load('facebookresearch/pytorchvideo', 'slow_r50', pretrained=True)
     model_resnet.blocks[5].proj = nn.Linear(in_features=2048, out_features=1, bias=True)
@@ -277,7 +278,8 @@ if __name__ == '__main__':
         val_dataset_file=val_set,
         nn_model=model_resnet,
         augmentation_val=video_transform_val,
-        augmentation_train=video_transform_train
+        augmentation_train=video_transform_train,
+        clip_duration=video_duration
     )
     print(f"this train set is gonna be used: {train_set}")
     print(f"this val set is gonna be used: {val_set}")
