@@ -4,4 +4,4 @@
 #SBATCH --gpus=2
 #SBATCH --cpus-per-gpu=8
 #SBATCH --nodes=1
-srun python model_v2.py --mode train --type binary --version 4 --devices 2 --logger_comment Person_1_Front_sgd_opt --dataset_path datasets/Person_1_Front
+srun python model_v2.py --mode train --type binary --version 5 --devices 2 --logger_comment Person_1_Front_sgd_0.01_lr --dataset_path datasets/Person_1_Front
