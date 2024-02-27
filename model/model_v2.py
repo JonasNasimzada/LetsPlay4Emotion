@@ -18,6 +18,7 @@ from pytorchvideo.transforms import (
     RandomShortSideScale,
     ShortSideScale
 )
+from torch.optim import SGD
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
 from torchmetrics import Precision, Recall, F1Score, Accuracy, ConfusionMatrix, AUROC
@@ -43,7 +44,7 @@ class NeuralNetworkModel(LightningModule):
         self.augmentation_train = augmentation_train
         self.augmentation_val = augmentation_val
         self.conv_layers = nn_model
-        self.lr = 0.05
+        self.lr = 0.01
         self.batch_size = 32
         self.num_worker = 8
         self.clip_duration = clip_duration
@@ -67,7 +68,7 @@ class NeuralNetworkModel(LightningModule):
         return x
 
     def configure_optimizers(self):
-        opt = torch.optim.SGD(params=self.parameters(), lr=self.lr, weight_decay=1e-5)
+        opt = SGD(params=self.parameters(), lr=self.lr, weight_decay=1e-5)
         scheduler = CosineAnnealingLR(opt, T_max=10, eta_min=1e-6, last_epoch=-1)
         return {"optimizer": opt, "lr_scheduler": scheduler}
 
