@@ -25,18 +25,16 @@ from torchmetrics import Precision, Recall, F1Score, Accuracy, ConfusionMatrix, 
 from torchvision.transforms import Compose, Lambda
 from torchvision.transforms import (
     RandomCrop,
-    CenterCrop,
     RandomHorizontalFlip
 )
 from torchvision.transforms._transforms_video import (
     NormalizeVideo, CenterCropVideo
 )
-from torchvision.transforms.v2 import RandomAffine
 
 
 class NeuralNetworkModel(LightningModule):
     def __init__(self, num_classes, model_type, train_dataset_file, val_dataset_file, nn_model, augmentation_train,
-                 augmentation_val, clip_duration):
+                 augmentation_val, clip_duration, batch_size):
         super().__init__()
         self.model_type = model_type
         self.train_dataset_file = train_dataset_file
@@ -45,7 +43,7 @@ class NeuralNetworkModel(LightningModule):
         self.augmentation_val = augmentation_val
         self.conv_layers = nn_model
         self.lr = 0.01
-        self.batch_size = 32
+        self.batch_size = batch_size
         self.num_worker = 8
         self.clip_duration = clip_duration
 
@@ -68,7 +66,7 @@ class NeuralNetworkModel(LightningModule):
         return x
 
     def configure_optimizers(self):
-        opt = SGD(params=self.parameters(), lr=self.lr, weight_decay=1e-5)
+        opt = SGD(params=self.parameters(), lr=self.lr)
         scheduler = CosineAnnealingLR(opt, T_max=10, eta_min=1e-6, last_epoch=-1)
         return {"optimizer": opt, "lr_scheduler": scheduler}
 
@@ -179,6 +177,7 @@ if __name__ == '__main__':
     parser.add_argument("--devices", default=1, type=int)
     parser.add_argument("--epochs", default=100, type=int)
     parser.add_argument("--precision", default=32, type=int)
+    parser.add_argument("--batch_size", default=32, type=int)
     args = parser.parse_args()
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
@@ -282,7 +281,8 @@ if __name__ == '__main__':
         nn_model=model_resnet,
         augmentation_val=video_transform_val,
         augmentation_train=video_transform_train,
-        clip_duration=video_duration
+        clip_duration=video_duration,
+        batch_size=args.batch_size
     )
     print(f"this train set is gonna be used: {train_set}")
     print(f"this val set is gonna be used: {val_set}")
