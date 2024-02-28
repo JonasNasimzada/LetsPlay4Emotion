@@ -66,7 +66,7 @@ class NeuralNetworkModel(LightningModule):
         return x
 
     def configure_optimizers(self):
-        opt = SGD(params=self.parameters(), lr=self.lr)
+        opt = SGD(params=self.parameters(), lr=self.lr, weight_decay=1e-5, momentum=0.8)
         scheduler = CosineAnnealingLR(opt, T_max=10, eta_min=1e-6, last_epoch=-1)
         return {"optimizer": opt, "lr_scheduler": scheduler}
 
