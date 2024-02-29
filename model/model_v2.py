@@ -46,13 +46,14 @@ class NeuralNetworkModel(LightningModule):
         self.batch_size = batch_size
         self.num_worker = 8
         self.clip_duration = clip_duration
+        self.num_classes = num_classes
 
-        self.f1_score = F1Score(task=self.model_type, num_classes=num_classes)
-        self.accuracy = Accuracy(task=self.model_type, num_classes=num_classes)
-        self.auroc = AUROC(task=self.model_type, num_classes=num_classes)
-        self.precision = Precision(task=self.model_type, average='macro', num_classes=num_classes)
-        self.recall = Recall(task=self.model_type, average='macro', num_classes=num_classes)
-        self.confusion_matrix = ConfusionMatrix(task=self.model_type, num_classes=num_classes)
+        self.f1_score = F1Score(task=self.model_type, num_classes=self.num_classes)
+        self.accuracy = Accuracy(task=self.model_type, num_classes=self.num_classes)
+        self.auroc = AUROC(task=self.model_type, num_classes=self.num_classes)
+        self.precision = Precision(task=self.model_type, average='macro', num_classes=self.num_classes)
+        self.recall = Recall(task=self.model_type, average='macro', num_classes=self.num_classes)
+        self.confusion_matrix = ConfusionMatrix(task=self.model_type, num_classes=self.num_classes)
 
         if self.model_type == "binary":
             self.loss = nn.BCEWithLogitsLoss()
@@ -152,7 +153,7 @@ class NeuralNetworkModel(LightningModule):
         )
 
         confusion_matrix_computed = self.confusion_matrix.compute().detach().cpu().numpy().astype(int)
-        df_cm = pd.DataFrame(confusion_matrix_computed, index=range(2), columns=range(2))
+        df_cm = pd.DataFrame(confusion_matrix_computed, index=range(self.num_classes), columns=range(self.num_classes))
         fig, ax = plt.subplots(figsize=(10, 7))
         sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
         self.logger.experiment.add_figure("val_confusion_matrix matrix", fig, self.current_epoch)
@@ -195,7 +196,7 @@ if __name__ == '__main__':
         version = f"v{args.version}_"
 
     if args.type == 'binary':
-        classes = 2
+        classes = 1
         metric = "binary"
     elif args.type == 'multi':
         classes = 5
@@ -243,7 +244,7 @@ if __name__ == '__main__':
     video_duration = (num_frames * sampling_rate) / frames_per_second
 
     model_resnet = torch.hub.load('facebookresearch/pytorchvideo', 'slow_r50', pretrained=True)
-    model_resnet.blocks[5].proj = nn.Linear(in_features=2048, out_features=1, bias=True)
+    model_resnet.blocks[5].proj = nn.Linear(in_features=2048, out_features=classes, bias=True)
 
     checkpoint_callback = ModelCheckpoint(monitor='val_loss', dirpath=f'checkpoints_{version}{data_suffix}',
                                           filename=f"ckpt-{version}{data_infix}{data_suffix}" + '-{epoch:02d}-{'
