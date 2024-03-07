@@ -30,6 +30,9 @@ from torchvision.transforms import (
 from torchvision.transforms._transforms_video import (
     NormalizeVideo, CenterCropVideo
 )
+from pytorchvideo.data.labeled_video_dataset import LabeledVideoDataset
+
+UniformTemporalSubsample
 
 
 class NeuralNetworkModel(LightningModule):
@@ -138,6 +141,7 @@ class NeuralNetworkModel(LightningModule):
         self.accuracy(output_network, input_label)
         self.precision(output_network, input_label)
         self.auroc(output_network, input_label)
+        self.recall(output_network, input_label)
 
         self.log_dict(
             {
@@ -145,6 +149,7 @@ class NeuralNetworkModel(LightningModule):
                 "val_accuracy": self.accuracy,
                 "val_precision": self.precision,
                 "val_auroc": self.auroc,
+                "val_recall": self.recall,
             },
             on_step=False,
             on_epoch=True,
@@ -179,6 +184,7 @@ if __name__ == '__main__':
     parser.add_argument("--epochs", default=100, type=int)
     parser.add_argument("--precision", default=32, type=int)
     parser.add_argument("--batch_size", default=32, type=int)
+    parser.add_argument("--ckpt", default="")
     args = parser.parse_args()
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
@@ -246,9 +252,9 @@ if __name__ == '__main__':
     model_resnet = torch.hub.load('facebookresearch/pytorchvideo', 'slow_r50', pretrained=True)
     model_resnet.blocks[5].proj = nn.Linear(in_features=2048, out_features=classes, bias=True)
 
-    checkpoint_callback = ModelCheckpoint(monitor='val_loss', dirpath=f'checkpoints_{version}{data_suffix}',
-                                          filename=f"ckpt-{version}{data_infix}{data_suffix}" + '-{epoch:02d}-{'
-                                                                                                'val_loss:.2f}',
+    checkpoint_dirpath = f'checkpoints_{version}{data_suffix}'
+    checkpoint_callback = ModelCheckpoint(monitor='val_loss', dirpath=checkpoint_dirpath,
+                                          filename=f"ckpt-{version}{data_infix}{data_suffix}" + '-{epoch:02d}-{val_loss:.2f}',
                                           save_last=True)
     lr_monitor = LearningRateMonitor(logging_interval='epoch')
 
@@ -289,7 +295,10 @@ if __name__ == '__main__':
     print(f"this val set is gonna be used: {val_set}")
 
     if args.mode == 'train':
-        trainer.fit(model)
+        if args.ckpt != "":
+            trainer.fit(ckpt_path=args.ckpt, model=model)
+        else:
+            trainer.fit(model)
     elif args.mode == 'pred':
         checkpoint_path = checkpoint_callback.best_model_path
         trainer.predict(model, checkpoint_path)
