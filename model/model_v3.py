@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 from pytorch_lightning import Trainer, LightningModule
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
-from pytorchvideo.data import make_clip_sampler, labeled_video_dataset
+from pytorchvideo.data import make_clip_sampler, labeled_video_dataset, Kinetics
 from pytorchvideo.transforms import (
     ApplyTransformToKey,
     UniformTemporalSubsample
@@ -75,19 +75,20 @@ class NeuralNetworkModel(LightningModule):
         return {"optimizer": opt, "lr_scheduler": scheduler}
 
     def train_dataloader(self):
-        train_dataset = labeled_video_dataset(self.train_dataset_file,
-                                              clip_sampler=make_clip_sampler('uniform', self.clip_duration),
-                                              transform=self.augmentation_train, decode_audio=False)
-        class_weights = [500 / 2502, 2000 / 2502]
-        sample_weights = [0] * train_dataset.num_videos
+        data = pd.read_csv(self.train_dataset_file)
+        labels = data.iloc[:, 1].tolist()
+        label_counts = {0: labels.count(0), 1: labels.count(1)}
+        total_samples = len(labels)
+        weights = [1.0 / label_counts[label] for label in labels]
 
-        for idx, (data, label) in enumerate(train_dataset):
-            sample_weights[idx] = class_weights[label]
+        sampler = WeightedRandomSampler(weights, total_samples, replacement=True)
 
-        sampler = WeightedRandomSampler(sample_weights, num_samples=len(sample_weights), replacement=True)
+        train_dataset = Kinetics(self.train_dataset_file, video_sampler=sampler,
+                                 clip_sampler=make_clip_sampler('uniform', self.clip_duration),
+                                 transform=self.augmentation_train, decode_audio=False)
 
         loader = DataLoader(train_dataset, sampler=sampler, batch_size=self.batch_size, pin_memory=True,
-                            num_workers=self.num_worker)
+                            num_workers=self.num_worker, shuffle=False)
         return loader
 
     def _common_step(self, batch, batch_idx):
