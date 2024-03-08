@@ -32,9 +32,10 @@ def worker(queue):
 def main():
     # Argument parsing
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_vids', nargs='+', default=[])
+    parser.add_argument('--input_directory', type=str)
     parser.add_argument('--output_dir', type=str)
     parser.add_argument('--thread_num', type=int, default=1, help="number of threads")
+    parser.add_argument('--input_vids', nargs='+', default=[])
 
     args = parser.parse_args()
 
@@ -52,11 +53,12 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
 
     for root, dirs, files in os.walk(args.input_directory):
-        for directory in dirs:
-            if directory.lower() == "detections":
-                chunk_data = (f"{root}/{directory}", os.path.basename(root), args.output_dir)
-                queue.put(chunk_data)
-                chunk_id += 1
+        if os.path.basename(root) in args.input_vids:
+            for directory in dirs:
+                if directory.lower() == "detections":
+                    chunk_data = (f"{root}/{directory}", os.path.basename(root), args.output_dir)
+                    queue.put(chunk_data)
+                    chunk_id += 1
 
     for _ in range(num_processes):
         queue.put(None)
