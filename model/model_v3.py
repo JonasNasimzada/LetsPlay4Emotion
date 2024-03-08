@@ -79,7 +79,7 @@ class NeuralNetworkModel(LightningModule):
                                               clip_sampler=make_clip_sampler('uniform', self.clip_duration),
                                               transform=self.augmentation_train, decode_audio=False)
         class_weights = [500 / 2502, 2000 / 2502]
-        sample_weights = [0] * len(train_dataset)
+        sample_weights = [0] * train_dataset.num_videos
 
         for idx, (data, label) in enumerate(train_dataset):
             sample_weights[idx] = class_weights[label]
