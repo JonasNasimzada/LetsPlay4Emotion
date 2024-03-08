@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from model.resnet50_face_sfew_dag import Resnet50_face_sfew_dag
+from resnet50_face_sfew_dag import Resnet50_face_sfew_dag
 
 
 class Resnet50_FER(nn.Module):
