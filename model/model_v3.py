@@ -167,7 +167,11 @@ class NeuralNetworkModel(LightningModule):
         )
 
         confusion_matrix_computed = self.confusion_matrix.compute().detach().cpu().numpy().astype(int)
-        df_cm = pd.DataFrame(confusion_matrix_computed, index=range(self.num_classes), columns=range(self.num_classes))
+        if self.model_type == "binary":
+            df_cm = pd.DataFrame(confusion_matrix_computed, index=range(2), columns=range(2))
+        else:
+            df_cm = pd.DataFrame(confusion_matrix_computed, index=range(self.num_classes),
+                                 columns=range(self.num_classes))
         fig, ax = plt.subplots(figsize=(10, 7))
         sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
         self.logger.experiment.add_figure("val_confusion_matrix matrix", fig, self.current_epoch)
