@@ -32,7 +32,7 @@ def worker(queue):
 def main():
     # Argument parsing
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_directory', type=str)
+    parser.add_argument('--input_vids', nargs='+', default=[])
     parser.add_argument('--output_dir', type=str)
     parser.add_argument('--thread_num', type=int, default=1, help="number of threads")
 
