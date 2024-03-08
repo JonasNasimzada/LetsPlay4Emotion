@@ -59,7 +59,7 @@ class NeuralNetworkModel(LightningModule):
 
         if self.model_type == "binary":
             weights = torch.tensor([500 / 2502, 2000 / 2502])
-            self.loss = nn.BCEWithLogitsLoss(weight=weights)
+            self.loss = nn.BCEWithLogitsLoss()
         else:
             self.loss = nn.CrossEntropyLoss()
 
