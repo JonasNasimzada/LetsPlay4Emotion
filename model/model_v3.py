@@ -82,7 +82,7 @@ class NeuralNetworkModel(LightningModule):
         total_samples = len(labels)
         weights = [1.0 / label_counts[label] for label in labels]
 
-        sampler = torch.utils.data.sampler.WeightedRandomSampler(weights, total_samples, replacement=True)
+        sampler = WeightedRandomSampler(weights, total_samples, replacement=True)
 
         train_dataset = labeled_video_dataset(self.train_dataset_file, video_sampler=sampler,
                                               clip_sampler=make_clip_sampler('uniform', self.clip_duration),
