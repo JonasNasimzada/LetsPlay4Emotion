@@ -75,7 +75,7 @@ class NeuralNetworkModel(LightningModule):
         return {"optimizer": opt, "lr_scheduler": scheduler}
 
     def train_dataloader(self):
-        data = pd.read_csv(self.train_dataset_file)
+        data = pd.read_csv(self.train_dataset_file, delimiter='\t', header=None)
         labels = data.iloc[:, 1].tolist()
         label_counts = {0: labels.count(0), 1: labels.count(1)}
         total_samples = len(labels)
