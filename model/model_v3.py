@@ -58,7 +58,7 @@ class NeuralNetworkModel(LightningModule):
         self.confusion_matrix = ConfusionMatrix(task=self.model_type, num_classes=self.num_classes)
 
         if self.model_type == "binary":
-            weights = [500 / 2502, 2000 / 2502]
+            weights = torch.tensor([500 / 2502, 2000 / 2502])
             self.loss = nn.BCEWithLogitsLoss(weight=weights)
         else:
             self.loss = nn.CrossEntropyLoss()
