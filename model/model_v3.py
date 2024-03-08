@@ -20,9 +20,8 @@ from pytorchvideo.transforms import (
 )
 from torch.optim import SGD
 from torch.optim.lr_scheduler import CosineAnnealingLR
-# from torch.utils.data.Sampler import DataLoader, WeightedRandomSampler
-import torch.utils.data.WeightedRandomSampler
-import torch.utils.data.DataLoader
+from torch.utils.data.sampler import WeightedRandomSampler
+from torch.utils.data import DataLoader
 from torchmetrics import Precision, Recall, F1Score, Accuracy, ConfusionMatrix, AUROC
 from torchvision.transforms import Compose, Lambda
 from torchvision.transforms import (
@@ -83,13 +82,14 @@ class NeuralNetworkModel(LightningModule):
         total_samples = len(labels)
         weights = [1.0 / label_counts[label] for label in labels]
 
-        sampler = WeightedRandomSampler(weights, total_samples, replacement=True)
+        sampler = torch.utils.data.sampler.WeightedRandomSampler(weights, total_samples, replacement=True)
 
         train_dataset = labeled_video_dataset(self.train_dataset_file, video_sampler=sampler,
                                               clip_sampler=make_clip_sampler('uniform', self.clip_duration),
                                               transform=self.augmentation_train, decode_audio=False)
 
-        loader = DataLoader(train_dataset, sampler=sampler, batch_size=self.batch_size, pin_memory=True,
+        loader = DataLoader(train_dataset, sampler=sampler, batch_size=self.batch_size,
+                            pin_memory=True,
                             num_workers=self.num_worker, shuffle=False)
         return loader
 
