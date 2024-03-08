@@ -31,7 +31,7 @@ from torchvision.transforms._transforms_video import (
     NormalizeVideo, CenterCropVideo
 )
 
-from model.pretrained_models import Resnet50_FER
+from pretrained_models import Resnet50_FER
 
 
 class NeuralNetworkModel(LightningModule):
