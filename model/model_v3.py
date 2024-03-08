@@ -261,7 +261,8 @@ if __name__ == '__main__':
 
     # model_resnet = torch.hub.load('facebookresearch/pytorchvideo', 'slow_r50', pretrained=True)
     # model_resnet.blocks[5].proj = nn.Linear(in_features=2048, out_features=classes, bias=True)
-    model_resnet = Resnet50_FER(args.model_ckpt, classes)
+    model_resnet = Resnet50_FER(args.model_ckpt)
+    model_resnet.model.prediction = nn.Linear(in_features=2048, out_features=2, bias=True)
     checkpoint_dirpath = f'checkpoints_{version}{data_suffix}'
     checkpoint_callback = ModelCheckpoint(monitor='val_loss', dirpath=checkpoint_dirpath,
                                           filename=f"ckpt-{version}{data_infix}{data_suffix}" + '-{epoch:02d}-{val_loss:.2f}',

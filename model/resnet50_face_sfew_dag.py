@@ -5,7 +5,7 @@ import torch.nn as nn
 
 class Resnet50_face_sfew_dag(nn.Module):
 
-    def __init__(self, num_classes):
+    def __init__(self):
         super(Resnet50_face_sfew_dag, self).__init__()
         self.meta = {'mean': [131.88330078125, 105.51170349121094, 92.56940460205078],
                      'std': [1, 1, 1],
@@ -167,7 +167,7 @@ class Resnet50_face_sfew_dag(nn.Module):
         self.conv5_3c_bn = nn.BatchNorm2d(2048, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
         self.conv5_3_relu = nn.ReLU()
         self.prediction_avg = nn.AvgPool2d(kernel_size=[7, 7], stride=[1, 1], padding=0)
-        self.prediction = nn.Linear(in_features=2048, out_features=num_classes, bias=True)
+        self.prediction = nn.Linear(in_features=2048, out_features=7, bias=True)
 
     def forward(self, data):
         conv1_conv = self.conv1_conv(data)
