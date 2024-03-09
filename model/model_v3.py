@@ -96,6 +96,7 @@ class NeuralNetworkModel(LightningModule):
 
         loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker,
                             shuffle=False)
+        return loader
 
     def _common_step(self, batch, batch_idx):
         video, input_label = batch['video'], batch['label']
