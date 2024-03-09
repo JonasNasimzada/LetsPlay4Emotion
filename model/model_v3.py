@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 from pytorch_lightning import Trainer, LightningModule
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
-from pytorchvideo.data import make_clip_sampler, labeled_video_dataset, Kinetics
+from pytorchvideo.data import make_clip_sampler
 from pytorchvideo.transforms import (
     ApplyTransformToKey,
     UniformTemporalSubsample
@@ -31,6 +31,7 @@ from torchvision.transforms import (
 from torchvision.transforms._transforms_video import (
     NormalizeVideo, CenterCropVideo
 )
+from kinetics import Kinetics
 
 from pretrained_models import Resnet50_FER
 
@@ -60,7 +61,7 @@ class NeuralNetworkModel(LightningModule):
 
         if self.model_type == "binary":
             weights = torch.tensor([500 / 2502, 2000 / 2502])
-            self.loss = nn.BCEWithLogitsLoss()
+            self.loss = nn.BCEWithLogitsLoss(weight=weights)
         else:
             self.loss = nn.CrossEntropyLoss()
 
@@ -84,9 +85,10 @@ class NeuralNetworkModel(LightningModule):
 
         sampler = WeightedRandomSampler(weights, total_samples, replacement=True)
 
-        train_dataset = labeled_video_dataset(self.train_dataset_file, video_sampler=sampler,
-                                              clip_sampler=make_clip_sampler('uniform', self.clip_duration),
-                                              transform=self.augmentation_train, decode_audio=False)
+        train_dataset = Kinetics(self.train_dataset_file, video_sampler=sampler, weights_sampler=weights,
+                                 weights_total_sampler=total_samples,
+                                 clip_sampler=make_clip_sampler('uniform', self.clip_duration),
+                                 transform=self.augmentation_train, decode_audio=False)
 
         loader = DataLoader(train_dataset, sampler=sampler, batch_size=self.batch_size,
                             pin_memory=True,
