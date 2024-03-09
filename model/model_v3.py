@@ -194,8 +194,8 @@ class NeuralNetworkModel(LightningModule):
         # fig, ax = plt.subplots(figsize=(10, 7))
         # sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
         # self.logger.experiment.add_figure("val_confusion_matrix matrix", fig, self.current_epoch)
-        #
-        # self.validation_output_list.clear()
+
+        self.validation_output_list.clear()
 
     def predict_step(self, batch, batch_idx, dataloader=0):
         video, input_label = batch['video'], batch['label']
