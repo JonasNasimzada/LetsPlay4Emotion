@@ -240,13 +240,13 @@ class LabeledVideoDataset(torch.utils.data.IterableDataset):
 def labeled_video_dataset(
         data_path: str,
         clip_sampler: ClipSampler,
+        weights_sampler: Any,
+        weights_total_sampler: Any,
         video_sampler: Type[torch.utils.data.Sampler] = torch.utils.data.sampler.WeightedRandomSampler,
         transform: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None,
         video_path_prefix: str = "",
         decode_audio: bool = True,
         decoder: str = "pyav",
-        weights_sampler: Any = None,
-        weights_total_sampler: Any = None
 ) -> LabeledVideoDataset:
     """
     A helper function to create ``LabeledVideoDataset`` object for Ucf101 and Kinetics datasets.
@@ -285,10 +285,12 @@ def labeled_video_dataset(
     labeled_video_paths.path_prefix = video_path_prefix
     dataset = LabeledVideoDataset(
         labeled_video_paths,
+        weights_sampler,
+        weights_total_sampler,
         clip_sampler,
         video_sampler,
         transform,
         decode_audio=decode_audio,
-        decoder=decoder,
+        decoder=decoder
     )
     return dataset

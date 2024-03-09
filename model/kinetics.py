@@ -16,13 +16,14 @@ from labeled_video_dataset import LabeledVideoDataset, labeled_video_dataset
 def Kinetics(
         data_path: str,
         clip_sampler: ClipSampler,
+        weights_sampler: Any,
+        weights_total_sampler: Any,
         video_sampler: Type[torch.utils.data.Sampler] = torch.utils.data.sampler.WeightedRandomSampler,
         transform: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None,
         video_path_prefix: str = "",
         decode_audio: bool = True,
         decoder: str = "pyav",
-        weights_sampler: Any = None,
-        weights_total_sampler: Any = None
+
 ) -> LabeledVideoDataset:
     """
     A helper function to create ``LabeledVideoDataset`` object for the Kinetics dataset.
@@ -63,11 +64,12 @@ def Kinetics(
     return labeled_video_dataset(
         data_path,
         clip_sampler,
+        weights_sampler,
+        weights_total_sampler,
         video_sampler,
         transform,
         video_path_prefix,
         decode_audio,
         decoder,
-        weights_sampler,
-        weights_total_sampler
+
     )
