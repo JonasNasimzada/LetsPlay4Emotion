@@ -2,6 +2,7 @@ import argparse
 import os
 
 import pandas as pd
+import pytorchvideo
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -122,9 +123,9 @@ class NeuralNetworkModel(LightningModule):
         return pred
 
     def val_dataloader(self):
-        val_dataset = labeled_video_dataset(self.val_dataset_file,
-                                            clip_sampler=make_clip_sampler('uniform', self.clip_duration),
-                                            transform=self.augmentation_val, decode_audio=False)
+        val_dataset = pytorchvideo.data.Kinetics(self.val_dataset_file,
+                                                 clip_sampler=make_clip_sampler('uniform', self.clip_duration),
+                                                 transform=self.augmentation_val, decode_audio=False)
         loader = DataLoader(val_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker)
         return loader
 
