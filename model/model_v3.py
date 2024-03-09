@@ -42,8 +42,9 @@ from pretrained_models import Resnet50_FER
 
 class NeuralNetworkModel(LightningModule):
     def __init__(self, num_classes, model_type, train_dataset_file, val_dataset_file, nn_model, augmentation_train,
-                 augmentation_val, clip_duration, batch_size):
+                 augmentation_val, clip_duration, batch_size, video_path_prefix):
         super().__init__()
+        self.video_path_prefix = video_path_prefix
         self.model_type = model_type
         self.train_dataset_file = train_dataset_file
         self.val_dataset_file = val_dataset_file
@@ -89,7 +90,7 @@ class NeuralNetworkModel(LightningModule):
         sampler = WeightedRandomSampler(weights, total_samples, replacement=True)
 
         train_dataset = Kinetics(self.train_dataset_file, video_sampler=sampler, weights_sampler=weights,
-                                 weights_total_sampler=total_samples,
+                                 weights_total_sampler=total_samples, video_path_prefix=self.video_path_prefix,
                                  clip_sampler=make_clip_sampler('uniform', self.clip_duration),
                                  transform=self.augmentation_train, decode_audio=False)
 
@@ -217,6 +218,8 @@ if __name__ == '__main__':
     parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--ckpt", default="")
     parser.add_argument("--model_ckpt", default="")
+    parser.add_argument("--prefix_data", default="")
+    parser.add_argument("--video_path_prefix", default="")
     args = parser.parse_args()
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
@@ -322,7 +325,8 @@ if __name__ == '__main__':
         augmentation_val=video_transform_val,
         augmentation_train=video_transform_train,
         clip_duration=video_duration,
-        batch_size=args.batch_size
+        batch_size=args.batch_size,
+        video_path_prefix=args.video_path_prefix
     )
     print(f"this train set is gonna be used: {train_set}")
     print(f"this val set is gonna be used: {val_set}")
