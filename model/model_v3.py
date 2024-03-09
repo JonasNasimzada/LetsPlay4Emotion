@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 from pytorch_lightning import Trainer, LightningModule
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
-from pytorchvideo.data import make_clip_sampler
+from pytorchvideo.data import make_clip_sampler, labeled_video_dataset
 from pytorchvideo.transforms import (
     ApplyTransformToKey,
     UniformTemporalSubsample
@@ -60,8 +60,7 @@ class NeuralNetworkModel(LightningModule):
         self.confusion_matrix = ConfusionMatrix(task=self.model_type, num_classes=self.num_classes)
 
         if self.model_type == "binary":
-            weights = torch.tensor([500 / 2502, 2000 / 2502])
-            self.loss = nn.BCEWithLogitsLoss(weight=weights)
+            self.loss = nn.BCEWithLogitsLoss(pos_weight=torch.FloatTensor([4.004]))
         else:
             self.loss = nn.CrossEntropyLoss()
 
