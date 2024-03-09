@@ -43,7 +43,7 @@ for ((i = 1; i <= number; i++)); do
         --batch_size $number \
         --current_batch $((i-1)) \
         --uv_material ${uv_material_list[*]} \
-        --camera ${camera_list[*]}"
+        --camera ${camera_list[*]}\""
     eval "$sbatch_command"
 done
 
