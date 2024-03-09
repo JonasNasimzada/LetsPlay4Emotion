@@ -76,7 +76,7 @@ class NeuralNetworkModel(LightningModule):
         return x
 
     def configure_optimizers(self):
-        opt = SGD(params=self.parameters(), lr=self.lr, weight_decay=1e-5)
+        opt = SGD(params=self.parameters(), lr=self.lr, weight_decay=1e-5,  momentum=0.9)
         scheduler = CosineAnnealingLR(opt, T_max=10, eta_min=1e-6, last_epoch=-1)
         return {"optimizer": opt, "lr_scheduler": scheduler}
 
@@ -96,6 +96,11 @@ class NeuralNetworkModel(LightningModule):
 
         loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker,
                             shuffle=False)
+        for i, (data, target) in enumerate(loader):
+            print("batch index {}, 0/1: {}/{}".format(
+                i,
+                len(np.where(target.numpy() == 0)[0]),
+                len(np.where(target.numpy() == 1)[0])))
         return loader
 
     def _common_step(self, batch, batch_idx):
@@ -175,26 +180,28 @@ class NeuralNetworkModel(LightningModule):
             sync_dist=True
         )
 
-        fig, ax = self.confusion_matrix.plot()
+        _fig, _ax = self.confusion_matrix.plot()
 
-        fig.canvas.draw()
-        image_np = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-        image_np = image_np.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+        _fig.canvas.draw()
+        image_np = np.frombuffer(_fig.canvas.buffer_rgba(), dtype=np.uint8)
+        image_np = image_np.reshape(_fig.canvas.get_width_height()[::-1] + (3,))
 
         # Log the numpy array as an image to TensorBoard
         writer = SummaryWriter()  # Initialize SummaryWriter
         writer.add_image('confusion_matrix', image_np, dataformats='HWC')  # Add the image to TensorBoard
+        self.logger.experiment.add_figure("val_confusion_matrix v2", _fig, self.current_epoch)
         writer.close()
 
-        # confusion_matrix_computed = self.confusion_matrix.compute().detach().cpu().numpy().astype(int)
-        # if self.model_type == "binary":
-        #     df_cm = pd.DataFrame(confusion_matrix_computed, index=range(2), columns=range(2))
-        # else:
-        #     df_cm = pd.DataFrame(confusion_matrix_computed, index=range(self.num_classes),
-        #                          columns=range(self.num_classes))
-        # fig, ax = plt.subplots(figsize=(10, 7))
-        # sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
-        # self.logger.experiment.add_figure("val_confusion_matrix matrix", fig, self.current_epoch)
+        confusion_matrix_computed = self.confusion_matrix.compute().detach().cpu().numpy().astype(int)
+        if self.model_type == "binary":
+            df_cm = pd.DataFrame(confusion_matrix_computed, index=range(2), columns=range(2))
+        else:
+            df_cm = pd.DataFrame(confusion_matrix_computed, index=range(self.num_classes),
+                                 columns=range(self.num_classes))
+        fig, ax = plt.subplots(figsize=(10, 7))
+        sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
+        sns.color_palette("magma", as_cmap=True)
+        self.logger.experiment.add_figure("val_confusion_matrix", fig, self.current_epoch)
 
         self.validation_output_list.clear()
 
