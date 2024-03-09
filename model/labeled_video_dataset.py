@@ -27,13 +27,13 @@ class LabeledVideoDataset(torch.utils.data.IterableDataset):
     def __init__(
             self,
             labeled_video_paths: List[Tuple[str, Optional[dict]]],
+            weights_sampler,
+            weights_total_sampler,
             clip_sampler: ClipSampler,
             video_sampler: Type[torch.utils.data.Sampler] = torch.utils.data.sampler.WeightedRandomSampler,
             transform: Optional[Callable[[dict], Any]] = None,
             decode_audio: bool = True,
             decoder: str = "pyav",
-            weights_sampler: Any = None,
-            weights_total_sampler: Any = None
     ) -> None:
         """
         Args:
