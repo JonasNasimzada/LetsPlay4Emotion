@@ -96,13 +96,6 @@ class NeuralNetworkModel(LightningModule):
 
         loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker,
                             shuffle=False)
-        for i, dtlst in enumerate(loader):
-            dt, target = dtlst
-            print("batch index {}, 0/1: {}/{}".format(
-                i,
-                len(np.where(target.numpy() == 0)[0]),
-                len(np.where(target.numpy() == 1)[0])))
-        return loader
 
     def _common_step(self, batch, batch_idx):
         video, input_label = batch['video'], batch['label']
