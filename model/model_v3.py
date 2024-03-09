@@ -183,7 +183,7 @@ class NeuralNetworkModel(LightningModule):
         _fig, _ax = self.confusion_matrix.plot()
 
         _fig.canvas.draw()
-        image_np = np.frombuffer(_fig.canvas.buffer_rgba(), dtype=np.uint8)
+        image_np = np.frombuffer(_fig.canvas.tostring_rgb(), dtype=np.uint8)
         image_np = image_np.reshape(_fig.canvas.get_width_height()[::-1] + (3,))
 
         # Log the numpy array as an image to TensorBoard
