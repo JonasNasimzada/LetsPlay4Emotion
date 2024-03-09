@@ -33,6 +33,9 @@ from torchvision.transforms._transforms_video import (
     NormalizeVideo, CenterCropVideo
 )
 from kinetics import Kinetics
+import numpy as np
+import matplotlib.pyplot as plt
+from tensorboardX import SummaryWriter
 
 from pretrained_models import Resnet50_FER
 
@@ -58,7 +61,7 @@ class NeuralNetworkModel(LightningModule):
         self.auroc = AUROC(task=self.model_type, num_classes=self.num_classes)
         self.precision = Precision(task=self.model_type, average='macro', num_classes=self.num_classes)
         self.recall = Recall(task=self.model_type, average='macro', num_classes=self.num_classes)
-        self.confusion_matrix = ConfusionMatrix(task=self.model_type, num_classes=self.num_classes)
+        self.confusion_matrix = ConfusionMatrix(task=self.model_type, num_classes=self.num_classes, normalize="true")
 
         if self.model_type == "binary":
             self.loss = nn.BCEWithLogitsLoss(pos_weight=torch.FloatTensor([4.004]))
@@ -149,7 +152,7 @@ class NeuralNetworkModel(LightningModule):
         output_network = torch.cat([x["output_network"] for x in self.validation_output_list])
         input_label = torch.cat([x["input_label"] for x in self.validation_output_list])
 
-        self.confusion_matrix(output_network, input_label)
+        self.confusion_matrix.update(output_network, input_label)
         self.f1_score(output_network, input_label)
         self.accuracy(output_network, input_label)
         self.precision(output_network, input_label)
@@ -170,17 +173,28 @@ class NeuralNetworkModel(LightningModule):
             sync_dist=True
         )
 
-        confusion_matrix_computed = self.confusion_matrix.compute().detach().cpu().numpy().astype(int)
-        if self.model_type == "binary":
-            df_cm = pd.DataFrame(confusion_matrix_computed, index=range(2), columns=range(2))
-        else:
-            df_cm = pd.DataFrame(confusion_matrix_computed, index=range(self.num_classes),
-                                 columns=range(self.num_classes))
-        fig, ax = plt.subplots(figsize=(10, 7))
-        sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
-        self.logger.experiment.add_figure("val_confusion_matrix matrix", fig, self.current_epoch)
+        fig, ax = self.confusion_matrix.plot()
 
-        self.validation_output_list.clear()
+        fig.canvas.draw()
+        image_np = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+        image_np = image_np.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+
+        # Log the numpy array as an image to TensorBoard
+        writer = SummaryWriter()  # Initialize SummaryWriter
+        writer.add_image('confusion_matrix', image_np, dataformats='HWC')  # Add the image to TensorBoard
+        writer.close()
+
+        # confusion_matrix_computed = self.confusion_matrix.compute().detach().cpu().numpy().astype(int)
+        # if self.model_type == "binary":
+        #     df_cm = pd.DataFrame(confusion_matrix_computed, index=range(2), columns=range(2))
+        # else:
+        #     df_cm = pd.DataFrame(confusion_matrix_computed, index=range(self.num_classes),
+        #                          columns=range(self.num_classes))
+        # fig, ax = plt.subplots(figsize=(10, 7))
+        # sns.heatmap(df_cm, ax=ax, annot=True, cmap='Spectral')
+        # self.logger.experiment.add_figure("val_confusion_matrix matrix", fig, self.current_epoch)
+        #
+        # self.validation_output_list.clear()
 
     def predict_step(self, batch, batch_idx, dataloader=0):
         video, input_label = batch['video'], batch['label']
