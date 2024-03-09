@@ -96,7 +96,8 @@ class NeuralNetworkModel(LightningModule):
 
         loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker,
                             shuffle=False)
-        for i, (data, target) in enumerate(loader):
+        for i, dtlst in enumerate(loader):
+            dt, target = dtlst
             print("batch index {}, 0/1: {}/{}".format(
                 i,
                 len(np.where(target.numpy() == 0)[0]),
