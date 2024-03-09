@@ -90,9 +90,8 @@ class NeuralNetworkModel(LightningModule):
                                  clip_sampler=make_clip_sampler('uniform', self.clip_duration),
                                  transform=self.augmentation_train, decode_audio=False)
 
-        loader = DataLoader(train_dataset, sampler=sampler, batch_size=self.batch_size,
-                            pin_memory=True,
-                            num_workers=self.num_worker, shuffle=False)
+        loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker,
+                            shuffle=False)
         return loader
 
     def _common_step(self, batch, batch_idx):
