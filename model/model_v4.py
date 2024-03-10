@@ -207,6 +207,28 @@ class NeuralNetworkModel(LightningModule):
         return prediction
 
 
+class PackPathway(torch.nn.Module):
+    """
+    Transform for converting video frames as a list of tensors.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, frames: torch.Tensor):
+        fast_pathway = frames
+        # Perform temporal sampling from the fast pathway.
+        slow_pathway = torch.index_select(
+            frames,
+            1,
+            torch.linspace(
+                0, frames.shape[1] - 1, frames.shape[1] // slowfast_alpha
+            ).long(),
+        )
+        frame_list = [slow_pathway, fast_pathway]
+        return frame_list
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", required=True, choices=['train', 'pred'])
@@ -246,6 +268,9 @@ if __name__ == '__main__':
         classes = 5
         metric = "multiclass"
 
+    slowfast_alpha = 4
+    num_clips = 10
+    num_crops = 3
     side_size = 256
     mean = [0.45, 0.45, 0.45]
     std = [0.225, 0.225, 0.225]
@@ -260,13 +285,14 @@ if __name__ == '__main__':
             [
                 UniformTemporalSubsample(num_frames),
                 Lambda(lambda x: x / 255.0),
-                Normalize(mean, std),
+                NormalizeVideo(mean, std),
                 RandomShortSideScale(
                     min_size=256,
                     max_size=320,
                 ),
-                RandomCrop(244),
+                RandomCrop(256),
                 RandomHorizontalFlip(p=0.5),
+                PackPathway()
             ]
         ),
     )
@@ -277,18 +303,19 @@ if __name__ == '__main__':
             [
                 UniformTemporalSubsample(num_frames),
                 Lambda(lambda x: x / 255.0),
-                Normalize(mean, std),
+                NormalizeVideo(mean, std),
                 ShortSideScale(
                     size=side_size
                 ),
-                CenterCropVideo(crop_size=(crop_size, crop_size))
+                CenterCropVideo(crop_size),
+                PackPathway()
             ]
         ),
     )
     video_duration = (num_frames * sampling_rate) / frames_per_second
 
-    model_resnet = torch.hub.load('facebookresearch/pytorchvideo', 'slow_r50', pretrained=True)
-    model_resnet.blocks[5].proj = nn.Linear(in_features=2048, out_features=classes, bias=True)
+    model_slowfast = torch.hub.load('facebookresearch/pytorchvideo', 'slowfast_r50', pretrained=True)
+    model_slowfast.blocks[5].proj = nn.Linear(in_features=2048, out_features=classes, bias=True)
 
     # model_resnet = Resnet50_FER(args.model_ckpt)
     # model_resnet.model.prediction = nn.Linear(in_features=2048, out_features=2, bias=True)
@@ -325,7 +352,7 @@ if __name__ == '__main__':
         model_type=metric,
         train_dataset_file=train_set,
         val_dataset_file=val_set,
-        nn_model=model_resnet,
+        nn_model=model_slowfast,
         augmentation_val=video_transform_val,
         augmentation_train=video_transform_train,
         clip_duration=video_duration,
