@@ -275,8 +275,8 @@ if __name__ == '__main__':
     mean = [0.45, 0.45, 0.45]
     std = [0.225, 0.225, 0.225]
     crop_size = 256
-    num_frames = 8
-    sampling_rate = 8
+    num_frames = 32
+    sampling_rate = 2
     frames_per_second = 25
 
     video_transform_train = ApplyTransformToKey(
