@@ -91,7 +91,7 @@ class NeuralNetworkModel(LightningModule):
 
         train_dataset = Kinetics(self.train_dataset_file, video_sampler=sampler, weights_sampler=weights,
                                  weights_total_sampler=total_samples, video_path_prefix=self.video_path_prefix,
-                                 clip_sampler=make_clip_sampler('uniform', self.clip_duration),
+                                 clip_sampler=make_clip_sampler('random', self.clip_duration),
                                  transform=self.augmentation_train, decode_audio=False)
 
         loader = DataLoader(train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker,
@@ -127,7 +127,7 @@ class NeuralNetworkModel(LightningModule):
 
     def val_dataloader(self):
         val_dataset = pytorchvideo.data.Kinetics(self.val_dataset_file,
-                                                 clip_sampler=make_clip_sampler('random', self.clip_duration),
+                                                 clip_sampler=make_clip_sampler('uniform', self.clip_duration),
                                                  transform=self.augmentation_val, decode_audio=False,
                                                  video_path_prefix=self.video_path_prefix)
         loader = DataLoader(val_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=self.num_worker)
