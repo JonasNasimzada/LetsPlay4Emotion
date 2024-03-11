@@ -314,7 +314,7 @@ if __name__ == '__main__':
 
     train_set = f"{args.dataset_path}/train-{data_infix}{data_suffix}.csv"
     val_set = f"{args.dataset_path}/val-{data_infix}{data_suffix}.csv"
-    data_module = VideoDataModule(train_set, val_set, args.video_path_prefix, args.clip_duration, args.batch_size,
+    data_module = VideoDataModule(train_set, val_set, args.video_path_prefix, video_duration, args.batch_size,
                                   args.num_workers)
 
     model = NeuralNetworkModel(
