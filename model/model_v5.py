@@ -56,14 +56,14 @@ class CustomVideoDataset(IterDataPipe, ABC):
 
 
 class VideoDataModule(pl.LightningDataModule):
-    def __init__(self, train_csv, val_csv, video_path_prefix, clip_duration, batch_size, num_workers):
+    def __init__(self, train_csv, val_csv, video_path_prefix, clip_duration, batch_size):
         super().__init__()
         self.train_csv = train_csv
         self.val_csv = val_csv
         self.video_path_prefix = video_path_prefix
         self.clip_duration = clip_duration
         self.batch_size = batch_size
-        self.num_workers = num_workers
+        self.num_workers = 8
 
         self.augmentation_train = transforms.Compose([
             transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),  # Random resized crop
@@ -141,7 +141,7 @@ class NeuralNetworkModel(pl.LightningModule):
         return {"optimizer": opt, "lr_scheduler": scheduler}
 
     def _common_step(self, batch, batch_idx):
-        video, input_label = batch['video'], batch['label']
+        video, input_label = batch
         if self.model_type == "binary":
             input_label = input_label.to(torch.float32).unsqueeze(1)
             output_network = self.forward(video)
@@ -314,8 +314,7 @@ if __name__ == '__main__':
 
     train_set = f"{args.dataset_path}/train-{data_infix}{data_suffix}.csv"
     val_set = f"{args.dataset_path}/val-{data_infix}{data_suffix}.csv"
-    data_module = VideoDataModule(train_set, val_set, args.video_path_prefix, video_duration, args.batch_size,
-                                  args.num_workers)
+    data_module = VideoDataModule(train_set, val_set, args.video_path_prefix, video_duration, args.batch_size)
 
     model = NeuralNetworkModel(
         num_classes=classes,
