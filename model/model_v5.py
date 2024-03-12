@@ -49,7 +49,12 @@ class CustomVideoDataset(IterDataPipe, ABC):
 
             if self.augmentation_train:
                 # Apply augmentation if provided
-                frames = self.augmentation_train(frames)
+                # Convert frames to PIL images
+                frames_pil = [transforms.ToPILImage()(frame) for frame in frames]
+                # Apply augmentation if provided
+                frames_pil = [self.augmentation_train(frame) for frame in frames_pil]
+                # Convert back to tensors
+                frames = torch.stack([transforms.ToTensor()(frame) for frame in frames_pil])
 
             yield frames, label
 
