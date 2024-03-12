@@ -33,8 +33,7 @@ class CustomVideoDataset(IterDataPipe, ABC):
         self.clip_duration = clip_duration
         self.augmentation_train = augmentation_train
 
-        data = pd.read_csv(self.dataframe, delimiter='\t', header=None)
-        labels = data.iloc[:, 1].tolist()
+        labels = self.dataframe.iloc[:, 1].tolist()
         label_counts = {0: labels.count(0), 1: labels.count(1)}
         total_samples = len(labels)
         weights = [1.0 / label_counts[label] for label in labels]
