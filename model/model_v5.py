@@ -83,6 +83,8 @@ class VideoDataModule(pl.LightningDataModule):
         ])
 
     def setup(self, stage=None):
+        self.train_csv = pd.read_csv(self.train_csv, delimiter='\t', header=None)
+        self.val_csv = pd.read_csv(self.val_csv, delimiter='\t', header=None)
         self.train_dataset = CustomVideoDataset(
             self.train_csv,
             video_path_prefix=self.video_path_prefix,
