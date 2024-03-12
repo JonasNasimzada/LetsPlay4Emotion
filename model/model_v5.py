@@ -22,7 +22,7 @@ from torch.utils.data.sampler import WeightedRandomSampler
 from torchmetrics import Precision, Recall, F1Score, Accuracy, ConfusionMatrix, AUROC
 from torchvision import transforms
 from torchvision.io import read_video
-from torchvision.transforms.functional import to_pil_image
+from torchvision.transforms.functional import to_pil_image, to_tensor
 
 from pretrained_models import Resnet50_FER
 
@@ -53,8 +53,10 @@ class CustomVideoDataset(IterDataPipe, ABC):
                 # Convert frames to PIL images
                 frames_pil = [to_pil_image(frame) for frame in frames]
                 # Apply augmentation if provided
-                frames = [self.augmentation_train(frame) for frame in frames_pil]
+                frames_pil = [self.augmentation_train(frame) for frame in frames_pil]
                 # Convert back to tensors
+                frames = torch.stack([to_tensor(frame) for frame in frames_pil])
+
             yield frames, label
 
 
