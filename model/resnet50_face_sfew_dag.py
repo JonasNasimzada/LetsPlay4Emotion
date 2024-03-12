@@ -345,7 +345,9 @@ class Resnet50_face_sfew_dag(nn.Module):
             conv5_3_sum = torch.add(conv5_2, conv5_3c_bn, alpha=1)
             conv5_3 = self.conv5_3_relu(conv5_3_sum)
             features.append(conv5_3)
-        combined_features = torch.stack(features, dim=0)
+
+        combined_features = torch.stack(features, dim=1)  # Combine features along the frame dimension
+        combined_features = combined_features.view(-1, *combined_features.size()[2:])
         prediction_avg_preflatten = self.prediction_avg(combined_features)
         prediction_avg = prediction_avg_preflatten.view(prediction_avg_preflatten.size(0), -1)
         # prediction = self.prediction(prediction_avg)
