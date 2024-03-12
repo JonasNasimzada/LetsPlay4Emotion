@@ -350,5 +350,5 @@ class Resnet50_face_sfew_dag(nn.Module):
         combined_features = combined_features.view(-1, *combined_features.size()[2:])
         prediction_avg_preflatten = self.prediction_avg(combined_features)
         prediction_avg = prediction_avg_preflatten.view(prediction_avg_preflatten.size(0), -1)
-        # prediction = self.prediction(prediction_avg)
-        return prediction_avg  # prediction
+        prediction = self.prediction(prediction_avg)
+        return prediction  # prediction
