@@ -10,7 +10,7 @@ class Resnet50_FER(nn.Module):
         self.model = Resnet50_face_sfew_dag()
         self.model.load_state_dict(torch.load(weights_path))
         self.model.prediction = nn.Linear(in_features=2048, out_features=1, bias=True)
-        self.model.prediction_avg = nn.AvgPool2d(kernel_size=1, stride=[1, 1], padding=0)
+        #self.model.prediction_avg = nn.AvgPool2d(kernel_size=1, stride=[1, 1], padding=0)
 
     def forward(self, imgs):
         out = self.model(imgs)
