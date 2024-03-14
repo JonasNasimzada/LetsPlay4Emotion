@@ -287,7 +287,7 @@ if __name__ == '__main__':
     video_duration = (num_frames * sampling_rate) / frames_per_second
 
     model_i3d = torch.hub.load('facebookresearch/pytorchvideo:main', model='i3d_r50', pretrained=True)
-    model_i3d.blocks[6].proj = nn.Linear(in_features=2304, out_features=classes, bias=True)
+    model_i3d.blocks[6].proj = nn.Linear(in_features=2048, out_features=classes, bias=True)
 
     # model_slowfast = torch.hub.load('facebookresearch/pytorchvideo', 'slowfast_r50', pretrained=True)
     # model_slowfast.blocks[6].proj = nn.Linear(in_features=2304, out_features=classes, bias=True)
