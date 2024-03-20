@@ -102,7 +102,25 @@ class VideoDataModule(pl.LightningDataModule):
         # weights = [1.0 / label_counts[label] for label in labels]
         #
         # sampler = WeightedRandomSampler(weights, total_samples, replacement=True)
-        return DataLoader(self.train_dataset, batch_size=self.batch_size)
+        def collate_fn(data):
+            """
+               data: is a list of tuples with (example, label, length)
+                     where 'example' is a tensor of arbitrary shape
+                     and label/length are scalars
+            """
+            _, labels, lengths = zip(*data)
+            max_len = max(lengths)
+            n_ftrs = data[0][0].size(1)
+            features = torch.zeros((len(data), max_len, n_ftrs))
+            labels = torch.tensor(labels)
+            lengths = torch.tensor(lengths)
+
+            for i in range(len(data)):
+                j, k = data[i][0].size(0), data[i][0].size(1)
+                features[i] = torch.cat([data[i][0], torch.zeros((max_len - j, k))])
+
+            return features.float(), labels.long(), lengths.long()
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, collate_fn=collate_fn)
 
         # data_pipe = SamplerIterDataPipe(self.train_dataset, sampler=WeightedRandomSampler,
         #                                 sampler_args=(weights, total_samples), sampler_kwargs={"replacement": True})
