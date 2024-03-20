@@ -34,13 +34,6 @@ class CustomVideoDataset(IterDataPipe, ABC):
         self.clip_duration = clip_duration
         self.augmentation_train = augmentation_train
 
-        labels = self.dataframe.iloc[:, 1].tolist()
-        label_counts = {0: labels.count(0), 1: labels.count(1)}
-        total_samples = len(labels)
-        weights = [1.0 / label_counts[label] for label in labels]
-
-        self.sampler = WeightedRandomSampler(weights, total_samples, replacement=True)
-
     def __iter__(self):
         for idx in range(len(self.dataframe)):
             video_file, label = self.dataframe.iloc[idx]
@@ -101,7 +94,14 @@ class VideoDataModule(pl.LightningDataModule):
         )
 
     def train_dataloader(self):
-        data_pipe = SamplerIterDataPipe(self.train_dataset, sampler=self.train_dataset.sampler)
+        dataframe = pd.read_csv(self.train_csv, delimiter='\t', header=None)
+        labels = dataframe.iloc[:, 1].tolist()
+        label_counts = {0: labels.count(0), 1: labels.count(1)}
+        total_samples = len(labels)
+        weights = [1.0 / label_counts[label] for label in labels]
+
+        sampler = WeightedRandomSampler(weights, total_samples, replacement=True)
+        data_pipe = SamplerIterDataPipe(self.train_dataset, sampler=sampler)
         return DataLoader(data_pipe, batch_size=self.batch_size, num_workers=self.num_workers)
 
     def val_dataloader(self):
