@@ -54,7 +54,7 @@ class CustomVideoDataset(IterDataPipe, ABC):
                 frames_pil = [to_pil_image(frame) for frame in frames]
                 # Apply augmentation if provided
                 frames = [self.augmentation_train(frame) for frame in frames_pil]
-            yield frames, label
+            yield torch.cat(frames, dim=0), label
 
 
 class VideoDataModule(pl.LightningDataModule):
