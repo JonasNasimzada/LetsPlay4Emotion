@@ -96,13 +96,13 @@ class VideoDataModule(pl.LightningDataModule):
         )
 
     def train_dataloader(self):
-        labels = self.train_csv.iloc[:, 1].tolist()
-        label_counts = {0: labels.count(0), 1: labels.count(1)}
-        total_samples = len(labels)
-        weights = [1.0 / label_counts[label] for label in labels]
-
-        sampler = WeightedRandomSampler(weights, total_samples, replacement=True)
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, sampler=sampler)
+        # labels = self.train_csv.iloc[:, 1].tolist()
+        # label_counts = {0: labels.count(0), 1: labels.count(1)}
+        # total_samples = len(labels)
+        # weights = [1.0 / label_counts[label] for label in labels]
+        #
+        # sampler = WeightedRandomSampler(weights, total_samples, replacement=True)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size)
 
         # data_pipe = SamplerIterDataPipe(self.train_dataset, sampler=WeightedRandomSampler,
         #                                 sampler_args=(weights, total_samples), sampler_kwargs={"replacement": True})
