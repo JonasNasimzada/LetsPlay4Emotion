@@ -150,6 +150,7 @@ class NeuralNetworkModel(pl.LightningModule):
             #input_label = input_label.to(torch.float32)
             preds = self.forward(video)
             _, output_network = torch.max(preds, dim=1)
+            print(output_network.dtype)
             loss = self.loss(output_network, input_label)
         else:
             input_label = input_label.to(torch.int64)
