@@ -147,7 +147,7 @@ class NeuralNetworkModel(pl.LightningModule):
     def _common_step(self, batch, batch_idx):
         video, input_label = batch
         if self.model_type == "binary":
-            #input_label = input_label.to(torch.float32)
+            input_label = input_label.to(torch.int64)
             preds = self.forward(video)
             _, output_network = torch.max(preds, dim=1)
             print(f"type: {output_network.dtype}")
