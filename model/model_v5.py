@@ -150,6 +150,7 @@ class NeuralNetworkModel(pl.LightningModule):
             input_label = input_label.to(torch.float32).unsqueeze(1)
             output_network = self.forward(video)
             loss = self.loss(output_network, input_label)
+            input_label = input_label.to(torch.float32).unsqueeze(1)
         else:
             input_label = input_label.to(torch.int64)
             output_network = self.forward(video)
