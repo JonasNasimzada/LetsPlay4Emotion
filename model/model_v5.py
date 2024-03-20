@@ -109,6 +109,7 @@ class VideoDataModule(pl.LightningDataModule):
                      and label/length are scalars
             """
             labels, lengths = zip(*data)
+            print(f"HEERRREE: labels: {labels}, length:{lengths}")
             max_len = max(lengths)
             n_ftrs = data[0][0].size(1)
             features = torch.zeros((len(data), max_len, n_ftrs))
