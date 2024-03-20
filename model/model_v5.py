@@ -49,6 +49,9 @@ class CustomVideoDataset(IterDataPipe, ABC):
                 frames = [self.augmentation_train(frame) for frame in frames_pil]
             yield torch.cat(frames, dim=0), label
 
+    def __len__(self):
+        return len(self.dataframe)
+
 
 class VideoDataModule(pl.LightningDataModule):
     def __init__(self, train_csv, val_csv, video_path_prefix, clip_duration, batch_size):
@@ -79,7 +82,6 @@ class VideoDataModule(pl.LightningDataModule):
         ])
 
     def setup(self, stage=None):
-
         self.train_dataset = CustomVideoDataset(
             self.train_csv,
             video_path_prefix=self.video_path_prefix,
