@@ -102,25 +102,22 @@ class VideoDataModule(pl.LightningDataModule):
         # weights = [1.0 / label_counts[label] for label in labels]
         #
         # sampler = WeightedRandomSampler(weights, total_samples, replacement=True)
-        def collate_fn(data):
-            """
-               data: is a list of tuples with (example, label, length)
-                     where 'example' is a tensor of arbitrary shape
-                     and label/length are scalars
-            """
-            labels, lengths = zip(*data)
-            print(f"HEERRREE: labels: {labels}, length:{lengths}")
-            max_len = max(lengths)
-            n_ftrs = data[0][0].size(1)
-            features = torch.zeros((len(data), max_len, n_ftrs))
-            labels = torch.tensor(labels)
-            lengths = torch.tensor(lengths)
+        def collate_fn(batch):
+            '''
+            Padds batch of variable length
 
-            for i in range(len(data)):
-                j, k = data[i][0].size(0), data[i][0].size(1)
-                features[i] = torch.cat([data[i][0], torch.zeros((max_len - j, k))])
+            note: it converts things ToTensor manually here since the ToTensor transform
+            assume it takes in images rather than arbitrary tensors.
+            '''
+            ## get sequence lengths
+            lengths = torch.tensor([t.shape[0] for t in batch])
+            ## padd
+            batch = [torch.Tensor(t) for t in batch]
+            batch = torch.nn.utils.rnn.pad_sequence(batch)
+            ## compute mask
+            mask = (batch != 0)
+            return batch, lengths, mask
 
-            return features.float(), labels.long(), lengths.long()
         return DataLoader(self.train_dataset, batch_size=self.batch_size, collate_fn=collate_fn)
 
         # data_pipe = SamplerIterDataPipe(self.train_dataset, sampler=WeightedRandomSampler,
