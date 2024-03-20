@@ -59,7 +59,8 @@ class VideoDataModule(pl.LightningDataModule):
         self.clip_duration = clip_duration
         self.batch_size = batch_size
         self.num_workers = 8
-
+        self.train_csv = pd.read_csv(self.train_csv, delimiter='\t', header=None)
+        self.val_csv = pd.read_csv(self.val_csv, delimiter='\t', header=None)
         self.augmentation_train = transforms.Compose([
             transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),  # Random resized crop
             transforms.RandomHorizontalFlip(),  # Random horizontal flip
@@ -78,8 +79,7 @@ class VideoDataModule(pl.LightningDataModule):
         ])
 
     def setup(self, stage=None):
-        self.train_csv = pd.read_csv(self.train_csv, delimiter='\t', header=None)
-        self.val_csv = pd.read_csv(self.val_csv, delimiter='\t', header=None)
+
         self.train_dataset = CustomVideoDataset(
             self.train_csv,
             video_path_prefix=self.video_path_prefix,
@@ -94,8 +94,7 @@ class VideoDataModule(pl.LightningDataModule):
         )
 
     def train_dataloader(self):
-        dataframe = pd.read_csv(self.train_csv, delimiter='\t', header=None)
-        labels = dataframe.iloc[:, 1].tolist()
+        labels = self.train_csv.iloc[:, 1].tolist()
         label_counts = {0: labels.count(0), 1: labels.count(1)}
         total_samples = len(labels)
         weights = [1.0 / label_counts[label] for label in labels]
