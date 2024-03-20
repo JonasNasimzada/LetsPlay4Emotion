@@ -108,7 +108,7 @@ class VideoDataModule(pl.LightningDataModule):
                      where 'example' is a tensor of arbitrary shape
                      and label/length are scalars
             """
-            _, labels, lengths = zip(*data)
+            labels, lengths = zip(*data)
             max_len = max(lengths)
             n_ftrs = data[0][0].size(1)
             features = torch.zeros((len(data), max_len, n_ftrs))
