@@ -102,9 +102,11 @@ class VideoDataModule(pl.LightningDataModule):
         weights = [1.0 / label_counts[label] for label in labels]
 
         sampler = WeightedRandomSampler(weights, total_samples, replacement=True)
-        data_pipe = SamplerIterDataPipe(self.train_dataset, sampler=WeightedRandomSampler,
-                                        sampler_args=(weights, total_samples), sampler_kwargs={"replacement": True})
-        return DataLoader(data_pipe, batch_size=self.batch_size, num_workers=self.num_workers)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, sampler=sampler)
+
+        # data_pipe = SamplerIterDataPipe(self.train_dataset, sampler=WeightedRandomSampler,
+        #                                 sampler_args=(weights, total_samples), sampler_kwargs={"replacement": True})
+        # return DataLoader(data_pipe, batch_size=self.batch_size, num_workers=self.num_workers)
 
     def val_dataloader(self):
         return DataLoader(
