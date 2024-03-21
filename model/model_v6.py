@@ -120,6 +120,7 @@ class NeuralNetworkModel(LightningModule):
         if self.model_type == "binary":
             batch_size, frames, channels, height, width = video.shape
             video = video.reshape(batch_size * frames, channels, height, width)
+            input_label = frames * input_label
             print(f"SHAAAPEPEPEPEPEE : {input_label.shape}")
             input_label = input_label.to(torch.float32).unsqueeze(1)
             output_network = self.forward(video)
