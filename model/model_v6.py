@@ -88,11 +88,11 @@ class NeuralNetworkModel(LightningModule):
 
     def train_dataloader(self):
         preprocess = transforms.Compose([
+            ImglistToTensor(),  # list of PIL images to (FRAMES x CHANNELS x HEIGHT x WIDTH) tensor
             transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),  # Random resized crop
             transforms.RandomHorizontalFlip(),  # Random horizontal flip
             transforms.RandomRotation(degrees=15),  # Random rotation
             transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),  # Color jitter
-            ImglistToTensor(),  # list of PIL images to (FRAMES x CHANNELS x HEIGHT x WIDTH) tensor
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
@@ -119,7 +119,7 @@ class NeuralNetworkModel(LightningModule):
         video, input_label = batch
         if self.model_type == "binary":
             input_label = input_label.to(torch.float32).unsqueeze(1)
-            output_network = self.forward(video)
+            output_network = self.forward(video.reshape(-1))
             loss = self.loss(output_network, input_label)
         else:
             input_label = input_label.to(torch.int64)
@@ -144,9 +144,9 @@ class NeuralNetworkModel(LightningModule):
 
     def val_dataloader(self):
         preprocess = transforms.Compose([
+            ImglistToTensor(),  # list of PIL images to (FRAMES x CHANNELS x HEIGHT x WIDTH) tensor
             transforms.Resize(256),  # Resize to 256x256
             transforms.CenterCrop(224),  # Center crop to 224x224
-            ImglistToTensor(),  # list of PIL images to (FRAMES x CHANNELS x HEIGHT x WIDTH) tensor
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  # Normalize
         ])
 
@@ -154,7 +154,7 @@ class NeuralNetworkModel(LightningModule):
             root_path=self.video_path_prefix,
             annotationfile_path=self.annotation_file_val,
             num_segments=5,
-            frames_per_segment=5,
+            frames_per_segment=1,
             imagefile_template='frame_{:04d}.jpg',
             transform=preprocess,
             test_mode=False
