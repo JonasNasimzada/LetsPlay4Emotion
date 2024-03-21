@@ -117,9 +117,10 @@ class NeuralNetworkModel(LightningModule):
 
     def _common_step(self, batch, batch_idx):
         video, input_label = batch
-        batch_size, num_frames, channels, height, width = video.shape
-        video = video.reshape(batch_size * num_frames, channels, height, width)
         if self.model_type == "binary":
+            batch_size, frames, channels, height, width = video.shape
+            video = video.reshape(batch_size * frames, channels, height, width)
+            print(f"SHAAAPEPEPEPEPEE : {input_label.shape}")
             input_label = input_label.to(torch.float32).unsqueeze(1)
             output_network = self.forward(video)
             loss = self.loss(output_network, input_label)
