@@ -93,7 +93,6 @@ class NeuralNetworkModel(LightningModule):
             RandomHorizontalFlip(),
             RandomRotation(degrees=15),
             ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
-            ToDtype(torch.float32, scale=True),
             Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
@@ -121,12 +120,13 @@ class NeuralNetworkModel(LightningModule):
             batch_size, frames, channels, height, width = video.shape
             video = video.reshape(batch_size * frames, channels, height, width)
             input_label = input_label.to(torch.float32).unsqueeze(1)
+
             output_network = self.forward(video)
-            print(f"SHAAAPEPEPEPEPEE before: {output_network.shape}")
+
             batch_size_and_frames, label = output_network.shape
             output_network = output_network.reshape(batch_size, frames, label)
             output_network = output_network.mean(1)
-            print(f"SHAAAPEPEPEPEPEE after: {output_network.shape}")
+
             loss = self.loss(output_network, input_label)
         else:
             input_label = input_label.to(torch.int64)
@@ -154,8 +154,7 @@ class NeuralNetworkModel(LightningModule):
             ImglistToTensor(),  # list of PIL images to (FRAMES x CHANNELS x HEIGHT x WIDTH) tensor
             Resize(256),  # Resize to 256x256
             CenterCrop(224),  # Center crop to 224x224
-            ToDtype(torch.float32, scale=True),
-            Normalize(mean=[1, 1, 0.485, 0.456, 0.406], std=[1, 1, 0.229, 0.224, 0.225]),  # Normalize
+            Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  # Normalize
         ])
 
         dataset = VideoFrameDataset(
