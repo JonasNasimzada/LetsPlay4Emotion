@@ -24,15 +24,15 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data.sampler import WeightedRandomSampler
 from torch.utils.data import DataLoader
 from torchmetrics import Precision, Recall, F1Score, Accuracy, ConfusionMatrix, AUROC
-from torchvision.transforms import Compose, Lambda
-from torchvision.transforms import (
+from torchvision.transforms.v2 import Compose, Lambda, RandomResizedCrop, RandomRotation, ColorJitter, Resize, \
+    CenterCrop, ToDtype
+from torchvision.transforms.v2 import (
     RandomCrop,
     RandomHorizontalFlip
 )
 from torchvision.transforms._transforms_video import (
     NormalizeVideo, CenterCropVideo
 )
-from torchvision import transforms
 from torchvision.transforms.functional import to_pil_image, to_tensor
 from kinetics import Kinetics
 import numpy as np
@@ -87,13 +87,14 @@ class NeuralNetworkModel(LightningModule):
         return {"optimizer": opt, "lr_scheduler": scheduler}
 
     def train_dataloader(self):
-        preprocess = transforms.Compose([
-            ImglistToTensor(),  # list of PIL images to (FRAMES x CHANNELS x HEIGHT x WIDTH) tensor
-            transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),  # Random resized crop
-            transforms.RandomHorizontalFlip(),  # Random horizontal flip
-            transforms.RandomRotation(degrees=15),  # Random rotation
-            transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),  # Color jitter
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        preprocess = Compose([
+            ImglistToTensor(),
+            RandomResizedCrop(224, scale=(0.8, 1.0)),
+            RandomHorizontalFlip(),
+            RandomRotation(degrees=15),
+            ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
+            ToDtype(torch.float32, scale=True),
+            Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
         dataset = VideoFrameDataset(
@@ -112,6 +113,7 @@ class NeuralNetworkModel(LightningModule):
             num_workers=self.num_worker,
             pin_memory=True
         )
+        dataset.__getitem__()
 
         return loader
 
@@ -147,11 +149,12 @@ class NeuralNetworkModel(LightningModule):
         return pred
 
     def val_dataloader(self):
-        preprocess = transforms.Compose([
+        preprocess = Compose([
             ImglistToTensor(),  # list of PIL images to (FRAMES x CHANNELS x HEIGHT x WIDTH) tensor
-            transforms.Resize(256),  # Resize to 256x256
-            transforms.CenterCrop(224),  # Center crop to 224x224
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  # Normalize
+            Resize(256),  # Resize to 256x256
+            CenterCrop(224),  # Center crop to 224x224
+            ToDtype(torch.float32, scale=True),
+            Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  # Normalize
         ])
 
         dataset = VideoFrameDataset(
