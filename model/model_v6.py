@@ -154,7 +154,7 @@ class NeuralNetworkModel(LightningModule):
             Resize(256),  # Resize to 256x256
             CenterCrop(224),  # Center crop to 224x224
             ToDtype(torch.float32, scale=True),
-            Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  # Normalize
+            Normalize(mean=[1, 1, 0.485, 0.456, 0.406], std=[1, 1, 0.229, 0.224, 0.225]),  # Normalize
         ])
 
         dataset = VideoFrameDataset(
@@ -173,6 +173,7 @@ class NeuralNetworkModel(LightningModule):
             num_workers=self.num_worker,
             pin_memory=True
         )
+        loader.dataset
         return loader
 
     def validation_step(self, batch, batch_idx):
