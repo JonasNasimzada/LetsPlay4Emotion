@@ -45,9 +45,10 @@ class CustomVideoDataset(IterDataPipe, ABC):
                 # Apply augmentation if provided
                 # Convert frames to PIL images
                 frames_pil = [to_pil_image(frame) for frame in frames]
+                torch.stack([transforms.functional.to_tensor(pic) for pic in frames_pil])
                 # Apply augmentation if provided
-                frames = [self.augmentation_train(frame) for frame in frames_pil]
-            yield torch.cat(frames, dim=0), label
+                frame = [self.augmentation_train(frame) for frame in frames_pil]
+            yield frame, label
 
     def __len__(self):
         return len(self.dataframe)
