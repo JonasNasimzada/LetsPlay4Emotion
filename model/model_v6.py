@@ -39,7 +39,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tensorboardX import SummaryWriter
 
-from model.video_dataset import VideoFrameDataset, ImglistToTensor
+from video_dataset import VideoFrameDataset, ImglistToTensor
 from pretrained_models import Resnet50_FER, Resnet50_FER_V2
 
 
