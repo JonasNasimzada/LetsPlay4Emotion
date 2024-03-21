@@ -13,7 +13,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from pytorchvideo.data import make_clip_sampler, labeled_video_dataset
 from pytorchvideo.transforms import (
     ApplyTransformToKey,
-    UniformTemporalSubsample, Normalize
+    UniformTemporalSubsample,
 )
 from pytorchvideo.transforms import (
     RandomShortSideScale,
@@ -25,7 +25,7 @@ from torch.utils.data.sampler import WeightedRandomSampler
 from torch.utils.data import DataLoader
 from torchmetrics import Precision, Recall, F1Score, Accuracy, ConfusionMatrix, AUROC
 from torchvision.transforms.v2 import Compose, Lambda, RandomResizedCrop, RandomRotation, ColorJitter, Resize, \
-    CenterCrop, ToDtype
+    CenterCrop, ToDtype, Normalize
 from torchvision.transforms.v2 import (
     RandomCrop,
     RandomHorizontalFlip
@@ -93,7 +93,6 @@ class NeuralNetworkModel(LightningModule):
             RandomHorizontalFlip(),
             RandomRotation(degrees=15),
             ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
-            ToDtype(torch.float32, scale=True),
             Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
@@ -154,7 +153,6 @@ class NeuralNetworkModel(LightningModule):
             ImglistToTensor(),  # list of PIL images to (FRAMES x CHANNELS x HEIGHT x WIDTH) tensor
             Resize(256),  # Resize to 256x256
             CenterCrop(224),  # Center crop to 224x224
-            ToDtype(torch.float32, scale=True),
             Normalize(mean=[1, 1, 0.485, 0.456, 0.406], std=[1, 1, 0.229, 0.224, 0.225]),  # Normalize
         ])
 
@@ -308,7 +306,7 @@ if __name__ == '__main__':
             [
                 UniformTemporalSubsample(8),
                 Lambda(lambda x: x / 255.0),
-                Normalize((0.45, 0.45, 0.45), (0.225, 0.225, 0.225)),
+                # Normalize((0.45, 0.45, 0.45), (0.225, 0.225, 0.225)),
                 RandomShortSideScale(min_size=256, max_size=320),
                 RandomCrop(244),
                 RandomHorizontalFlip(p=0.5),
@@ -322,7 +320,7 @@ if __name__ == '__main__':
             [
                 UniformTemporalSubsample(num_frames),
                 Lambda(lambda x: x / 255.0),
-                Normalize(mean, std),
+                # Normalize(mean, std),
                 ShortSideScale(
                     size=side_size
                 ),
