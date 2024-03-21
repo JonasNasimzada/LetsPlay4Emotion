@@ -113,8 +113,6 @@ class NeuralNetworkModel(LightningModule):
             num_workers=self.num_worker,
             pin_memory=True
         )
-        dataset.__getitem__()
-
         return loader
 
     def _common_step(self, batch, batch_idx):
