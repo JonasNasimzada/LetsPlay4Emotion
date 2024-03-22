@@ -225,7 +225,12 @@ class NeuralNetworkModel(LightningModule):
         writer = SummaryWriter()  # Initialize SummaryWriter
         writer.add_image('confusion_matrix', image_np, dataformats='HWC')  # Add the image to TensorBoard
         self.logger.experiment.add_figure("val_confusion_matrix v2", _fig, self.current_epoch)
+        for text in _ax.texts:
+            text.set_text(round(float(text.get_text()), 2))
+        writer.add_image('confusion_matrix v3', image_np, dataformats='HWC')
+        self.logger.experiment.add_figure("val_confusion_matrix v3", _fig, self.current_epoch)
         writer.close()
+
 
         confusion_matrix_computed = self.confusion_matrix.compute().detach().cpu().numpy().astype(int)
         if self.model_type == "binary":
