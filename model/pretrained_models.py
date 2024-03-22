@@ -24,7 +24,7 @@ class Resnet50_FER_V2(nn.Module):
         self.model = Resnet50_face_sfew_dag()
         loaded = self.model.load_state_dict(torch.load(weights_path))
         print(f"is loaded : {loaded}")
-        self.model.prediction = nn.Linear(in_features=2048, out_features=1, bias=True)
+        self.model.prediction = nn.Linear(in_features=2048, out_features=5, bias=True)
 
     def forward(self, imgs):
         out = self.model(imgs)

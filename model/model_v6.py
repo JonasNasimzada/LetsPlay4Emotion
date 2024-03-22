@@ -6,6 +6,7 @@ import pytorchvideo
 import seaborn as sns
 import torch
 import torch.nn as nn
+import torchvision.transforms.v2
 from matplotlib import pyplot as plt
 from pytorch_lightning import Trainer, LightningModule
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
@@ -99,8 +100,8 @@ class NeuralNetworkModel(LightningModule):
         dataset = VideoFrameDataset(
             root_path=self.video_path_prefix,
             annotationfile_path=self.annotation_file_train,
-            num_segments=5,
-            frames_per_segment=1,
+            num_segments=3,
+            frames_per_segment=10,
             imagefile_template='frame_{:04d}.jpg',
             transform=preprocess,
             test_mode=False
@@ -160,8 +161,8 @@ class NeuralNetworkModel(LightningModule):
         dataset = VideoFrameDataset(
             root_path=self.video_path_prefix,
             annotationfile_path=self.annotation_file_val,
-            num_segments=5,
-            frames_per_segment=1,
+            num_segments=3,
+            frames_per_segment=10,
             imagefile_template='frame_{:04d}.jpg',
             transform=preprocess,
             test_mode=False
