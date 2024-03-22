@@ -100,7 +100,7 @@ class NeuralNetworkModel(LightningModule):
         dataset = VideoFrameDataset(
             root_path=self.video_path_prefix,
             annotationfile_path=self.annotation_file_train,
-            num_segments=3,
+            num_segments=10,
             frames_per_segment=10,
             imagefile_template='frame_{:04d}.jpg',
             transform=preprocess,
@@ -157,7 +157,7 @@ class NeuralNetworkModel(LightningModule):
         dataset = VideoFrameDataset(
             root_path=self.video_path_prefix,
             annotationfile_path=self.annotation_file_val,
-            num_segments=3,
+            num_segments=10,
             frames_per_segment=10,
             imagefile_template='frame_{:04d}.jpg',
             transform=preprocess,
@@ -170,7 +170,6 @@ class NeuralNetworkModel(LightningModule):
             num_workers=self.num_worker,
             pin_memory=True
         )
-        loader.dataset
         return loader
 
     def validation_step(self, batch, batch_idx):
@@ -226,7 +225,7 @@ class NeuralNetworkModel(LightningModule):
         writer.add_image('confusion_matrix', image_np, dataformats='HWC')  # Add the image to TensorBoard
         self.logger.experiment.add_figure("val_confusion_matrix v2", _fig, self.current_epoch)
         for text in _ax.texts:
-            text.set_text(round(float(text.get_text()), 2))
+            text.set_text(round(float(text.get_text()), 5))
         writer.add_image('confusion_matrix v3', image_np, dataformats='HWC')
         self.logger.experiment.add_figure("val_confusion_matrix v3", _fig, self.current_epoch)
         writer.close()
