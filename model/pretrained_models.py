@@ -9,7 +9,7 @@ class Resnet50_FER(nn.Module):
         super(Resnet50_FER, self).__init__()
         self.model = Resnet50_face_sfew_dag()
         self.model.load_state_dict(torch.load(weights_path))
-        #self.model.conv1_conv = nn.Conv2d(414, 64, kernel_size=[7, 7], stride=(2, 2), padding=(3, 3))
+        # self.model.conv1_conv = nn.Conv2d(414, 64, kernel_size=[7, 7], stride=(2, 2), padding=(3, 3))
         self.model.prediction = nn.Linear(in_features=2048, out_features=1, bias=True)
         # self.model.prediction_avg = nn.AvgPool2d(kernel_size=1, stride=[1, 1], padding=0)
 
@@ -25,7 +25,11 @@ class Resnet50_FER_V2(nn.Module):
         loaded = self.model.load_state_dict(torch.load(weights_path))
         print(f"is loaded : {loaded}")
         self.model.prediction = nn.Linear(in_features=2048, out_features=5, bias=True)
+        self.last = nn.Conv1d(kernel_size=5, in_channels=2048, out_channels=5)
 
     def forward(self, imgs):
         out = self.model(imgs)
+        out = out.view(out.shape[0] // 5, 5, out.shape[-1])
+        out = self.last(out).squeeze()
+
         return out

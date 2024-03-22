@@ -344,5 +344,6 @@ class Resnet50_face_sfew_dag(nn.Module):
         conv5_3 = self.conv5_3_relu(conv5_3_sum)
         prediction_avg_preflatten = self.prediction_avg(conv5_3)
         prediction_avg = prediction_avg_preflatten.view(prediction_avg_preflatten.size(0), -1)
-        prediction = self.prediction(prediction_avg)
-        return prediction  # prediction
+        return prediction_avg
+        #prediction = self.prediction(prediction_avg)
+        #return prediction  # prediction
