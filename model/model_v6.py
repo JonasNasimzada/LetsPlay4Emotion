@@ -246,7 +246,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
-
+    torch.cuda.empty_cache()
     classes = None
     version = "v1"
     metric = None
