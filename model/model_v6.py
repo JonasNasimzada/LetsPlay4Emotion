@@ -284,6 +284,7 @@ if __name__ == '__main__':
         callbacks=[lr_monitor, checkpoint_callback],
         enable_progress_bar=True,
         strategy="ddp",
+        auto_select_gpus=True,
         precision=args.precision,
         logger=logger
     )
