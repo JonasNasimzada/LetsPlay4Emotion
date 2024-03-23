@@ -234,7 +234,7 @@ if __name__ == '__main__':
     parser.add_argument("--version", default="", type=int)
     parser.add_argument("--devices", default=1, type=int)
     parser.add_argument("--epochs", default=100, type=int)
-    parser.add_argument("--precision", default=32, type=int)
+    parser.add_argument("--precision", default=32)
     parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--ckpt", default="")
     parser.add_argument("--model_ckpt", default="")
