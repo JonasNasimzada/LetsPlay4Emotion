@@ -269,7 +269,7 @@ if __name__ == '__main__':
                                           save_last=True)
     lr_monitor = LearningRateMonitor(logging_interval='epoch')
 
-    logger_name = f"model_{version}{args.type}{args.type}"
+    logger_name = f"model_{version}{args.type}"
     logger = TensorBoardLogger("model_logger", name=logger_name,
                                version=f"version_{version}_{logger_name}_{args.logger_comment}")
     print(f"the logger name is: {logger_name}")
@@ -283,8 +283,6 @@ if __name__ == '__main__':
         devices=args.devices,
         callbacks=[lr_monitor, checkpoint_callback],
         enable_progress_bar=True,
-        strategy="ddp",
-        auto_select_gpus=True,
         precision=args.precision,
         logger=logger
     )
