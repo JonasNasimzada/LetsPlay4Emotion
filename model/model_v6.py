@@ -246,7 +246,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
-    torch.cuda.empty_cache()
+
     classes = None
     version = "v1"
     metric = None
@@ -283,6 +283,7 @@ if __name__ == '__main__':
         devices=args.devices,
         callbacks=[lr_monitor, checkpoint_callback],
         enable_progress_bar=True,
+        strategy="ddp",
         precision=args.precision,
         logger=logger
     )
