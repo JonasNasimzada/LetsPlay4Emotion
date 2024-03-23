@@ -29,7 +29,7 @@ class Resnet50_FER_V2(nn.Module):
 
     def forward(self, imgs):
         out = self.model(imgs)
-        out = out.view(out.shape[0] // 5, out.shape[-1], 5)
+        out = out.view(out.shape[0], out.shape[-1], 5)
         out = self.last(out).squeeze()
 
         return out
