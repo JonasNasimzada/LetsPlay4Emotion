@@ -28,7 +28,7 @@ from video_dataset import VideoFrameDataset, ImglistToTensor
 
 class NeuralNetworkModel(LightningModule):
     def __init__(self, num_classes, model_type, nn_model, batch_size, video_path_prefix, annotation_file_train,
-                 annotation_file_val):
+                 annotation_file_val, num_worker):
         super().__init__()
         self.video_path_prefix = video_path_prefix
         self.annotation_file_train = annotation_file_train
@@ -37,7 +37,7 @@ class NeuralNetworkModel(LightningModule):
         self.conv_layers = nn_model
         self.lr = 0.01
         self.batch_size = batch_size
-        self.num_worker = 8
+        self.num_worker = num_worker
         self.num_classes = num_classes
 
         self.f1_score = F1Score(task=self.model_type, num_classes=self.num_classes)
@@ -242,6 +242,7 @@ if __name__ == '__main__':
     parser.add_argument("--video_path_prefix", default="")
     parser.add_argument("--ann_val", default="")
     parser.add_argument("--ann_train", default="")
+    parser.add_argument("--num_worker", default=8, type=int)
     args = parser.parse_args()
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
@@ -294,7 +295,8 @@ if __name__ == '__main__':
         batch_size=args.batch_size,
         video_path_prefix=args.video_path_prefix,
         annotation_file_val=args.ann_val,
-        annotation_file_train=args.ann_train
+        annotation_file_train=args.ann_train,
+        num_worker=args.num_worker
     )
 
     if args.mode == 'train':
