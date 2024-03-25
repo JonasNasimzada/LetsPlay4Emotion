@@ -101,7 +101,7 @@ class NeuralNetworkModel(LightningModule):
         else:
             input_label = input_label.to(torch.int64)
             output_network = self.forward(video, batch_size)
-        batch_size_and_frames, label = output_network.shape
+        # batch_size_and_frames, label = output_network.shape
         # output_network = output_network.view(0, output_network.size(-1))
         # output_network = output_network.mean(1)
         loss = self.loss(output_network, input_label)
