@@ -102,9 +102,6 @@ class NeuralNetworkModel(LightningModule):
             input_label = input_label.to(torch.int64)
             output_network = self.forward(video, batch_size)
         batch_size_and_frames, label = output_network.shape
-        print(f"SHAAAPEPEPE: {output_network.shape}")
-        print(f"SHAAAPEPEPE batch_size_and_frames : {batch_size_and_frames}")
-        print(f"SHAAAPEPEPE frames : {frames}")
         # output_network = output_network.view(0, output_network.size(-1))
         # output_network = output_network.mean(1)
         loss = self.loss(output_network, input_label)
@@ -204,7 +201,7 @@ class NeuralNetworkModel(LightningModule):
         writer.add_image('confusion_matrix', image_np, dataformats='HWC')  # Add the image to TensorBoard
         self.logger.experiment.add_figure("val_confusion_matrix v2", _fig, self.current_epoch)
         for text in _ax.texts:
-            text.set_text(round(float(text.get_text()), 5))
+            text.set_text(round(float(text.get_text()), 3))
         writer.add_image('confusion_matrix v3', image_np, dataformats='HWC')
         self.logger.experiment.add_figure("val_confusion_matrix v3", _fig, self.current_epoch)
         writer.close()
@@ -264,7 +261,7 @@ if __name__ == '__main__':
         classes = 5
         metric = "multiclass"
 
-    model_resnet = Resnet50_FER_V2(args.model_ckpt)
+    model_resnet = Resnet50_FER_V2(args.model_ckpt, args.type)
 
     checkpoint_dirpath = f'checkpoints_{version}{args.type}'
     checkpoint_callback = ModelCheckpoint(monitor='val_loss', dirpath=checkpoint_dirpath,

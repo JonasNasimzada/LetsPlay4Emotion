@@ -19,13 +19,17 @@ class Resnet50_FER(nn.Module):
 
 
 class Resnet50_FER_V2(nn.Module):
-    def __init__(self, weights_path):
+    def __init__(self, weights_path, mode):
         super(Resnet50_FER_V2, self).__init__()
         self.model = Resnet50_face_sfew_dag()
         loaded = self.model.load_state_dict(torch.load(weights_path))
         print(f"is loaded : {loaded}")
+        out_weight_channel = 5
+        if mode == "binary":
+            out_weight_channel = 1
+
         self.model.prediction = nn.Linear(in_features=2048, out_features=5, bias=True)
-        self.last = nn.Sequential(nn.Conv1d(kernel_size=5, in_channels=2048, out_channels=5),
+        self.last = nn.Sequential(nn.Conv1d(kernel_size=5, in_channels=2048, out_channels=out_weight_channel),
                                   # mehrer 1D geschachetelt / ander kernel size, mit pooling layer/ attention über
                                   nn.AdaptiveMaxPool1d(output_size=1))  # Averagepooling
 
