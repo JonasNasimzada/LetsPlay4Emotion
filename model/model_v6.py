@@ -99,14 +99,13 @@ class NeuralNetworkModel(LightningModule):
             input_label = input_label.to(torch.float32).unsqueeze(1)
             output_network = self.forward(video)
         else:
-            frames_per_segment = 14
             input_label = input_label.to(torch.int64)
             output_network = self.forward(video)
         batch_size_and_frames, label = output_network.shape
         print(f"SHAAAPEPEPE: {output_network.shape}")
         print(f"SHAAAPEPEPE batch_size_and_frames : {batch_size_and_frames}")
         print(f"SHAAAPEPEPE frames : {frames}")
-        output_network = output_network.reshape(batch_size_and_frames // frames_per_segment, label)
+        # output_network = output_network.view(0, output_network.size(-1))
         # output_network = output_network.mean(1)
         loss = self.loss(output_network, input_label)
         return loss, output_network, input_label
