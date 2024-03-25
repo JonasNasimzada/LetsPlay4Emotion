@@ -25,8 +25,9 @@ class Resnet50_FER_V2(nn.Module):
         loaded = self.model.load_state_dict(torch.load(weights_path))
         print(f"is loaded : {loaded}")
         self.model.prediction = nn.Linear(in_features=2048, out_features=5, bias=True)
-        self.last = nn.Sequential(nn.Conv1d(kernel_size=5, in_channels=2048, out_channels=5), # mehrer 1D geschachetelt / ander kernel size, mit pooling layer/ attention über
-                                  nn.AdaptiveMaxPool1d(output_size=1)) #Averagepooling
+        self.last = nn.Sequential(nn.Conv1d(kernel_size=5, in_channels=2048, out_channels=5),
+                                  # mehrer 1D geschachetelt / ander kernel size, mit pooling layer/ attention über
+                                  nn.AdaptiveMaxPool1d(output_size=1))  # Averagepooling
 
     def forward(self, imgs, batch_size):
         out = self.model(imgs)

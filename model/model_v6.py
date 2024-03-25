@@ -286,7 +286,7 @@ if __name__ == '__main__':
         devices=args.devices,
         callbacks=[lr_monitor, checkpoint_callback],
         enable_progress_bar=True,
-        strategy="ddp",
+        strategy="ddp_find_unused_parameters_true",
         precision=args.precision,
         logger=logger
     )
