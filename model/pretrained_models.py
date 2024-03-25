@@ -25,11 +25,12 @@ class Resnet50_FER_V2(nn.Module):
         loaded = self.model.load_state_dict(torch.load(weights_path))
         print(f"is loaded : {loaded}")
         self.model.prediction = nn.Linear(in_features=2048, out_features=5, bias=True)
-        self.last = nn.Conv1d(kernel_size=5, in_channels=2048, out_channels=5)
+        self.last = nn.Sequential(**[nn.Conv1d(kernel_size=5, in_channels=2048, out_channels=5),
+                                     nn.AdaptiveMaxPool1d(output_size=1)])
 
-    def forward(self, imgs):
+    def forward(self, imgs, batch_size):
         out = self.model(imgs)
-        out = out.view(out.shape[0] // 5, out.shape[-1], 5)
+        out = out.view(batch_size, -1, 5)
         out = self.last(out).squeeze()
 
         return out

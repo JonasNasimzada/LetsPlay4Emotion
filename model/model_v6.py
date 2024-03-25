@@ -54,8 +54,8 @@ class NeuralNetworkModel(LightningModule):
 
         self.validation_output_list = []
 
-    def forward(self, x):
-        x = self.conv_layers(x)
+    def forward(self, x, batch_size):
+        x = self.conv_layers(x, batch_size)
         return x
 
     def configure_optimizers(self):
@@ -97,10 +97,10 @@ class NeuralNetworkModel(LightningModule):
         video = video.reshape(batch_size * frames, channels, height, width)
         if self.model_type == "binary":
             input_label = input_label.to(torch.float32).unsqueeze(1)
-            output_network = self.forward(video)
+            output_network = self.forward(video, batch_size)
         else:
             input_label = input_label.to(torch.int64)
-            output_network = self.forward(video)
+            output_network = self.forward(video, batch_size)
         batch_size_and_frames, label = output_network.shape
         print(f"SHAAAPEPEPE: {output_network.shape}")
         print(f"SHAAAPEPEPE batch_size_and_frames : {batch_size_and_frames}")
