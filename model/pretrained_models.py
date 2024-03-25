@@ -30,7 +30,10 @@ class Resnet50_FER_V2(nn.Module):
 
     def forward(self, imgs, batch_size):
         out = self.model(imgs)
-        out = out.view(batch_size, -1, 5)
+        import pdb
+        pdb.set_trace()
+        out = out.view(batch_size, -1, out.shape[0] // batch_size)
+
         out = self.last(out).squeeze()
 
         return out
