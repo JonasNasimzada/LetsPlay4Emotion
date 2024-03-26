@@ -1,4 +1,5 @@
 import argparse
+import io
 import os
 
 import matplotlib.pyplot as plt
@@ -7,7 +8,9 @@ import pandas as pd
 import seaborn as sns
 import torch
 import torch.nn as nn
+import tensorflow as tf
 import torchvision
+from mpl_toolkits.axes_grid1 import ImageGrid
 from pytorch_lightning import Trainer, LightningModule
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -121,10 +124,55 @@ class NeuralNetworkModel(LightningModule):
             prog_bar=True,
             sync_dist=True
         )
+
+        def denormalize(video_tensor):
+            """
+            Undoes mean/standard deviation normalization, zero to one scaling,
+            and channel rearrangement for a batch of images.
+            args:
+                video_tensor: a (FRAMES x CHANNELS x HEIGHT x WIDTH) tensor
+            """
+            inverse_normalize = Normalize(
+                mean=[-0.485 / 0.229, -0.456 / 0.224, -0.406 / 0.225],
+                std=[1 / 0.229, 1 / 0.224, 1 / 0.225]
+            )
+            return (inverse_normalize(video_tensor) * 255.).type(torch.uint8).permute(0, 2, 3, 1).numpy()
+
+        def plot_video(rows, cols, frame_list, plot_width, plot_height, title: str):
+            fig = plt.figure(figsize=(plot_width, plot_height))
+            grid = ImageGrid(fig, 111,  # similar to subplot(111)
+                             nrows_ncols=(rows, cols),  # creates 2x2 grid of axes
+                             axes_pad=0.3,  # pad between axes in inch.
+                             )
+
+            for index, (ax, im) in enumerate(zip(grid, frame_list)):
+                # Iterating over the grid returns the Axes.
+                ax.imshow(im)
+                ax.set_title(index)
+            plt.suptitle(title)
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png')
+            buf.seek(0)
+            return buf
+
         if batch_idx % 100 == 0:
-            x = x[0][:8]
-            grid = torchvision.utils.make_grid(x.view(-1, 1, 28, 28))
-            self.logger.experiment.add_image("images", grid, self.global_step)
+            x = x[0][0]
+            denormalize_frames = denormalize(x)
+            plot_video(rows=1, cols=5, frame_list=denormalize_frames, plot_width=15., plot_height=3.,
+                       title='Evenly Sampled Frames, + Video Transform')
+            image = tf.image.decode_png(plot_video.getvalue(), channels=4)
+            # Add the batch dimension
+            image = tf.expand_dims(image, 0)
+            # Add image summary
+            summary_op = tf.summary.image("plot", image)
+            # Session
+            with tf.Session() as sess:
+                # Run
+                summary = sess.run(summary_op)
+                # Write summary
+                writer = tf.train.SummaryWriter('./logs')
+                writer.add_summary(summary)
+                writer.close()
         return pred
 
     def val_dataloader(self):
