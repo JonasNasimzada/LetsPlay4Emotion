@@ -24,6 +24,7 @@ class Resnet50_FER_V2(nn.Module):
         self.model = Resnet50_face_sfew_dag()
         loaded = self.model.load_state_dict(torch.load(weights_path))
         print(f"is loaded : {loaded}")
+        self.mode = mode
         out_weight_channel = 5
         if mode == "binary":
             out_weight_channel = 1
@@ -36,7 +37,9 @@ class Resnet50_FER_V2(nn.Module):
     def forward(self, imgs, batch_size):
         out = self.model(imgs)
         out = out.view(batch_size, -1, out.shape[0] // batch_size)
-
-        out = self.last(out).squeeze()
+        if self.mode:
+            out = self.last(out).squeeze()
+        else:
+            out = self.last(out)
 
         return out

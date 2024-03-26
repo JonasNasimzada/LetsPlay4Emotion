@@ -7,6 +7,7 @@ import pandas as pd
 import seaborn as sns
 import torch
 import torch.nn as nn
+import torchvision
 from pytorch_lightning import Trainer, LightningModule
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -107,6 +108,7 @@ class NeuralNetworkModel(LightningModule):
         return loss, output_network, input_label
 
     def training_step(self, batch, batch_idx):
+        x, y = batch
         loss, output_network, input_label = self._common_step(batch, batch_idx)
         pred = {"loss": loss, "output_network": output_network, "input_label": input_label}
 
@@ -119,6 +121,10 @@ class NeuralNetworkModel(LightningModule):
             prog_bar=True,
             sync_dist=True
         )
+        if batch_idx % 100 == 0:
+            x = x[:8]
+            grid = torchvision.utils.make_grid(x.view(-1, 1, 28, 28))
+            self.logger.experiment.add_image("images", grid, self.global_step)
         return pred
 
     def val_dataloader(self):
