@@ -151,17 +151,15 @@ class NeuralNetworkModel(LightningModule):
                 ax.imshow(im)
                 ax.set_title(index)
             plt.suptitle(title)
-            plt.plot()
-            return plt
+            return fig
 
         if batch_idx % 100 == 0:
             x = x[0]
             denormalize_frames = denormalize(x)
-            image = plot_video(rows=1, cols=5, frame_list=denormalize_frames, plot_width=15., plot_height=3.,
-                               title='Evenly Sampled Frames, + Video Transform')
-
-            with SummaryWriter() as writer:
-                writer.add_image('Fig1', image.gcf())
+            fig = plot_video(rows=1, cols=5, frame_list=denormalize_frames, plot_width=15., plot_height=3.,
+                             title='Evenly Sampled Frames, + Video Transform')
+            fig.canvas.draw()
+            self.logger.experiment.add_image("images", fig, self.global_step)
 
         return pred
 
@@ -185,7 +183,7 @@ class NeuralNetworkModel(LightningModule):
         loader = torch.utils.data.DataLoader(
             dataset=dataset,
             batch_size=self.batch_size,
-            shuffle=True,
+            shuffle=False,
             num_workers=self.num_worker,
             pin_memory=True
         )
