@@ -160,7 +160,7 @@ class NeuralNetworkModel(LightningModule):
             image = plot_video(rows=1, cols=5, frame_list=denormalize_frames, plot_width=15., plot_height=3.,
                                title='Evenly Sampled Frames, + Video Transform')
 
-            with SummaryWriter('runs/SO_test') as writer:
+            with SummaryWriter() as writer:
                 writer.add_figure('Fig1', image.gcf())
 
         return pred
