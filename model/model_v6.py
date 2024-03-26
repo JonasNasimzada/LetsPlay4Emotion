@@ -161,7 +161,7 @@ class NeuralNetworkModel(LightningModule):
                                title='Evenly Sampled Frames, + Video Transform')
 
             with SummaryWriter() as writer:
-                writer.add_figure('Fig1', image.gcf())
+                writer.add_image('Fig1', image.gcf())
 
         return pred
 
