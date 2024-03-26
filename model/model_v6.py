@@ -165,14 +165,9 @@ class NeuralNetworkModel(LightningModule):
             image = tf.expand_dims(image, 0)
             # Add image summary
             summary_op = tf.summary.image("plot", image)
+            self.logger.experiment.add_image("images v2", summary_op, self.global_step)
             # Session
-            with tf.Session() as sess:
-                # Run
-                summary = sess.run(summary_op)
-                # Write summary
-                writer = tf.train.SummaryWriter('./logs')
-                writer.add_summary(summary)
-                writer.close()
+
         return pred
 
     def val_dataloader(self):
