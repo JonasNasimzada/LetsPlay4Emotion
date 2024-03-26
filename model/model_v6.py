@@ -162,7 +162,7 @@ class NeuralNetworkModel(LightningModule):
             plot_buff = plot_video(rows=1, cols=5, frame_list=denormalize_frames, plot_width=15., plot_height=3.,
                                    title='Evenly Sampled Frames, + Video Transform')
 
-            image = torchvision.io.decode_image(torch.frombuffer(plot_buff, dtype=torch.float32))
+            image = torchvision.io.decode_image(torch.frombuffer(plot_buff.getvalue(), dtype=torch.float32))
             self.logger.experiment.add_image("mnist_images", image, self.global_step)
 
         return pred
