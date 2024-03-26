@@ -123,6 +123,8 @@ class NeuralNetworkModel(LightningModule):
         )
         if batch_idx % 100 == 0:
             x = x[:8]
+            import pdb
+            pdb.set_trace()
             grid = torchvision.utils.make_grid(x.view(-1, 1, 28, 28))
             self.logger.experiment.add_image("images", grid, self.global_step)
         return pred
