@@ -1,6 +1,7 @@
 import argparse
 import io
 import os
+from datetime import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -163,10 +164,10 @@ class NeuralNetworkModel(LightningModule):
             image = tf.image.decode_png(plot_buff.getvalue(), channels=4)
             # Add the batch dimension
             image = tf.expand_dims(image, 0)
-            # Add image summary
-            summary_op = tf.summary.image("plot", image)
-            self.logger.experiment.add_image("images v2", summary_op, self.global_step)
-            # Session
+            logdir = "logs/train_data/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+            file_writer = tf.summary.create_file_writer(logdir)
+            with file_writer.as_default():
+                tf.summary.image("plot", image)
 
         return pred
 
