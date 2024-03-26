@@ -75,7 +75,7 @@ class NeuralNetworkModel(LightningModule):
             RandomHorizontalFlip(),
             RandomRotation(degrees=15),
             ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
-            Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            # Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
         dataset = VideoFrameDataset(
@@ -168,7 +168,7 @@ class NeuralNetworkModel(LightningModule):
             ImglistToTensor(),  # list of PIL images to (FRAMES x CHANNELS x HEIGHT x WIDTH) tensor
             Resize(256),  # Resize to 256x256
             CenterCrop(224),  # Center crop to 224x224
-            Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  # Normalize
+            # Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  # Normalize
         ])
 
         dataset = VideoFrameDataset(
