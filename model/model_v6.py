@@ -161,13 +161,9 @@ class NeuralNetworkModel(LightningModule):
             denormalize_frames = denormalize(x)
             plot_buff = plot_video(rows=1, cols=5, frame_list=denormalize_frames, plot_width=15., plot_height=3.,
                                    title='Evenly Sampled Frames, + Video Transform')
-            image = tf.image.decode_png(plot_buff.getvalue(), channels=4)
-            # Add the batch dimension
-            image = tf.expand_dims(image, 0)
-            logdir = "logs/train_data/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-            file_writer = tf.summary.create_file_writer(logdir)
-            with file_writer.as_default():
-                tf.summary.image("plot", image)
+
+            image = torchvision.io.decode_image(torch.frombuffer(plot_buff, dtype=torch.float32))
+            self.logger.experiment.add_image("mnist_images", image, self.global_step)
 
         return pred
 
