@@ -136,7 +136,7 @@ class NeuralNetworkModel(LightningModule):
                 mean=[-0.485 / 0.229, -0.456 / 0.224, -0.406 / 0.225],
                 std=[1 / 0.229, 1 / 0.224, 1 / 0.225]
             )
-            return (inverse_normalize(video_tensor) * 255.).type(torch.uint8).permute(0, 2, 3, 1).numpy()
+            return (inverse_normalize(video_tensor) * 255.).type(torch.uint8).permute(0, 2, 3, 1).detach().cpu().numpy()
 
         def plot_video(rows, cols, frame_list, plot_width, plot_height, title: str):
             fig = plt.figure(figsize=(plot_width, plot_height))
