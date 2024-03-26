@@ -151,7 +151,8 @@ class NeuralNetworkModel(LightningModule):
                 ax.imshow(im)
                 ax.set_title(index)
             plt.suptitle(title)
-            return fig
+            plt.plot()
+            return plt
 
         if batch_idx % 100 == 0:
             x = x[0]
@@ -159,7 +160,8 @@ class NeuralNetworkModel(LightningModule):
             image = plot_video(rows=1, cols=5, frame_list=denormalize_frames, plot_width=15., plot_height=3.,
                                title='Evenly Sampled Frames, + Video Transform')
 
-            self.logger.experiment.add_image("images v2", image, self.global_step)
+            with SummaryWriter('runs/SO_test') as writer:
+                writer.add_figure('Fig1', image.gcf())
 
         return pred
 
