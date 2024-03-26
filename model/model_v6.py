@@ -156,7 +156,7 @@ class NeuralNetworkModel(LightningModule):
         if batch_idx % 100 == 0:
             x = x[0]
             denormalize_frames = denormalize(x)
-            fig = plot_video(rows=1, cols=5, frame_list=denormalize_frames, plot_width=15., plot_height=3.,
+            fig = plot_video(rows=3, cols=75, frame_list=denormalize_frames, plot_width=15., plot_height=3.,
                              title='Evenly Sampled Frames, + Video Transform')
             fig.canvas.draw()
             self.logger.experiment.add_figure("images", fig, self.global_step)
