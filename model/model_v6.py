@@ -151,19 +151,15 @@ class NeuralNetworkModel(LightningModule):
                 ax.imshow(im)
                 ax.set_title(index)
             plt.suptitle(title)
-            buf = io.BytesIO()
-            plt.savefig(buf, format='png')
-            buf.seek(0)
-            return buf
+            return fig
 
         if batch_idx % 100 == 0:
             x = x[0]
             denormalize_frames = denormalize(x)
-            plot_buff = plot_video(rows=1, cols=5, frame_list=denormalize_frames, plot_width=15., plot_height=3.,
-                                   title='Evenly Sampled Frames, + Video Transform')
+            image = plot_video(rows=1, cols=5, frame_list=denormalize_frames, plot_width=15., plot_height=3.,
+                               title='Evenly Sampled Frames, + Video Transform')
 
-            image = torchvision.io.decode_image(torch.frombuffer(plot_buff.getvalue(), dtype=torch.float32))
-            self.logger.experiment.add_image("mnist_images", image, self.global_step)
+            self.logger.experiment.add_image("images v2", image, self.global_step)
 
         return pred
 
