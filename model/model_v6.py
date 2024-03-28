@@ -74,15 +74,15 @@ class NeuralNetworkModel(LightningModule):
             RandomResizedCrop(224, scale=(0.8, 1.0)),
             RandomHorizontalFlip(),
             RandomRotation(degrees=15),
-            # ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
+            ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
             Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
         dataset = VideoFrameDataset(
             root_path=self.video_path_prefix,
             annotationfile_path=self.annotation_file_train,
-            num_segments=3,
-            frames_per_segment=25,
+            num_segments=1,
+            frames_per_segment=45,
             imagefile_template='frame_{:04d}.jpg',
             transform=preprocess,
             test_mode=False
@@ -174,8 +174,8 @@ class NeuralNetworkModel(LightningModule):
         dataset = VideoFrameDataset(
             root_path=self.video_path_prefix,
             annotationfile_path=self.annotation_file_val,
-            num_segments=5,
-            frames_per_segment=14,
+            num_segments=1,
+            frames_per_segment=45,
             imagefile_template='frame_{:04d}.jpg',
             transform=preprocess,
             test_mode=False
