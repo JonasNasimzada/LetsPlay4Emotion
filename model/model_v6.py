@@ -82,7 +82,7 @@ class NeuralNetworkModel(LightningModule):
             root_path=self.video_path_prefix,
             annotationfile_path=self.annotation_file_train,
             num_segments=1,
-            frames_per_segment=45,
+            frames_per_segment=30,
             imagefile_template='frame_{:04d}.jpg',
             transform=preprocess,
             test_mode=False
@@ -175,7 +175,7 @@ class NeuralNetworkModel(LightningModule):
             root_path=self.video_path_prefix,
             annotationfile_path=self.annotation_file_val,
             num_segments=1,
-            frames_per_segment=31,
+            frames_per_segment=30,
             imagefile_template='frame_{:04d}.jpg',
             transform=preprocess,
             test_mode=False
