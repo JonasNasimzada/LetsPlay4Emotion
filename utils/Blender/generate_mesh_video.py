@@ -1,4 +1,4 @@
-import os
+import os, random
 import shutil
 
 import bpy
@@ -34,6 +34,9 @@ def load_and_render_mesh(input_path, file_path, output_path, uv_material_list, c
     blend = bpy.data
     head = bpy.data.objects['000001_000_mesh_coarse_sequence']
     bpy.ops.ms.batch_shade_smooth()
+
+    if not uv_material_list:
+        uv_material_list.append(random.choice(os.listdir("/groups/constantin_students/jnasimzada/ffhq-textures")))
 
     # render mesh for different uv-textures and camera-positions
     for uv_material in uv_material_list:

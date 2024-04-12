@@ -32,7 +32,6 @@ echo ""
 mamba activate py3.9v2
 
 for ((i = 1; i <= number; i++)); do
-
     sbatch_command="sbatch --time 1-1 --cpus-per-task=64"
     if [[ -n "$dependency" ]]; then
         sbatch_command+=" --dependency afterok:$dependency"
@@ -41,9 +40,14 @@ for ((i = 1; i <= number; i++)); do
         --blend_file mesh_sequence_v$blend_file_version.blend \
         --thread_num 16 \
         --batch_size $number \
-        --current_batch $((i-1)) \
-        --uv_material ${uv_material_list[*]} \
-        --camera ${camera_list[*]}\""
+        --current_batch $((i-1))"
+    if [[ -n "${uv_material_list[*]}" ]]; then
+        sbatch_command+=" --uv_material ${uv_material_list[*]}"
+    fi
+    if [[ -n "${camera_list[*]}" ]]; then
+        sbatch_command+=" --camera ${camera_list[*]}"
+    fi
+    sbatch_command+="\""
     eval "$sbatch_command"
 done
 

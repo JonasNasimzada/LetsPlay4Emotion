@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 def count_names_in_column(csv_file, name):
     try:
         # Read the CSV file into a pandas DataFrame with tab delimiter and without header
-        df = pd.read_csv(csv_file, delimiter='\t', header=None)
+        df = pd.read_csv(csv_file, delim_whitespace=True, header=None)
 
         # Assign default column names if the DataFrame doesn't have column names
         if df.columns[0] == 0:
@@ -35,6 +35,7 @@ def count_names_in_column(csv_file, name):
         plt.tight_layout()
         plt.savefig(fname=name)
         plt.show()
+        plt.imshow
 
     except FileNotFoundError:
         print("File not found. Please provide a valid CSV file path.")
@@ -44,7 +45,7 @@ def count_names_in_column(csv_file, name):
 
 if __name__ == "__main__":
     # Prompt the user for the CSV file path and column name
-    csv_file_path = "/Users/joni/LetsPlay4Emotion/model/datasets/val-binary.csv"
+    csv_file_path = "/Users/joni/LetsPlay4Emotion/utils/model/metric/train-binary_w_PA0_4.csv"
     csv_name = csv_file_path.split('/')[-1].split('.')[0]
 
     # Call the function to count names in the specified column
