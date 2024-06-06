@@ -14,46 +14,46 @@ However, incorporating synthetic and real data leads to improved pain recognitio
 
 To generate the meshes, we use the EMOCA repository. For creating the textures, we utilize FFHQ-UV. The video rendering is done using Blender.
 
-##Installation 
+## Installation 
 This code employs distinct conda environments for the respective repositories, [FFHQ-UV](https://github.com/csbhr/FFHQ-UV) and [EMOCA](https://github.com/radekd91/emoca), for their specific generation tasks.
 
-###Dependencies
+### Dependencies
 1) Install [conda](https://docs.anaconda.com/free/miniconda/)
 2) Run `pull_submodules.sh` for the submodules
-###Mesh-Generation
-Follow the instruction in the [EMOCA](https://github.com/radekd91/emoca/tree/release/EMOCA_v2/gdl_apps/EMOCA#installation) repository
-###Texture-Generation
-Follow the instruction in the [FFHQ-UV](https://github.com/csbhr/FFHQ-UV/tree/main?tab=readme-ov-file#dependencies) repository
-###Video-Rendering
-(Due the use of a Slurm Cluster management system, a container system was used for running the blender in a parallelized way) \
+### Mesh-Generation
+Follow the instructions in the [EMOCA](https://github.com/radekd91/emoca/tree/release/EMOCA_v2/gdl_apps/EMOCA#installation) repository
+### Texture-Generation
+Follow the instructions in the [FFHQ-UV](https://github.com/csbhr/FFHQ-UV/tree/main?tab=readme-ov-file#dependencies) repository
+### Video-Rendering
+(Due to the use of a Slurm Cluster management system, a container system was used for running the blender in a parallelized way) \
 For rendering a sequence of meshes the Blender plugin [Stop-motion-OBJ](https://github.com/neverhood311/Stop-motion-OBJ/releases) is used
 1) Download the latest version which is compatible with Blender LTS 3.6
 2) For easier usage download [Blender LTS 3.6](https://www.blender.org/download/lts/3-6/) on the local device and install the plugin
-3) After successful installing the plugin and Blender, save the config folder from blender for later mounting it in the container \
+3) After successfully installing the plugin and Blender, save the config folder from Blender for later mounting it in the container \
    (for the location of the folder see [here](https://blender.stackexchange.com/a/82))
-4) create inside a folder these folders with the followings files/folders:
-* `blender` : the .blend files with the current configuration of camere perspective, lightning, etc., the Stop-motion-OBJ folder and the config folder
+4) create inside a folder these folders with the following files/folders:
+* `blender`: the .blend files with the current configuration of camera perspective, lightning, etc., the Stop-motion-OBJ folder and the config folder
 * `all_mesh`: for the mesh files
 * `render`: the render scripts are inside
 * `ffhq_textures`: the texture files
 * `videos_mesh`: output folder where the rendered videos are saved
 
 Change the mounted folder(-structure) in the [`generating_threading.py`](render/generating_threading.py) between line 57 and 64 for other folder structure
-###Model Training
+### Model Training
 Install the conda `environment_model.yml`
 
-##Usage
+## Usage
 The scripts are adjusted for the [Slurm cluster](https://slurm.schedmd.com/)
 
-###Mesh-Generation
+### Mesh-Generation
 Use and/or adjust the [`create_emoca_mesh.sh`](mesh/create_emoca_mesh.sh) script 
 
-###Texture-Generation
+### Texture-Generation
 1) Create Texture: \
    run [`create_texture.sh`](texture/create_texture.sh) with the arguments `--input_dir` and `--output_dir`
 2) Apply UV mapping with the texture and the meshes: \
-   run [`apply_texture_with_mesh.sh`](texture/apply_texture_with_mesh.sh) and adjust the arguments `--input_dir` and `--thread_num` (this is an inplace operation)
-###Video-Rendering
+   run [`apply_texture_with_mesh.sh`](texture/apply_texture_with_mesh.sh) and adjust the arguments `--input_dir` and `--thread_num` (this is an in-place operation)
+### Video-Rendering
 (For render videos a .blend file is needed where the camera, the lightning, etc. is set) \
 Run the [`start_render_mesh.sh`](render/start_render_mesh.sh) and enter the parameter
 
