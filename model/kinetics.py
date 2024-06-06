@@ -12,6 +12,7 @@ from labeled_video_dataset import LabeledVideoDataset, labeled_video_dataset
     <https://deepmind.com/research/open-source/open-source-datasets/kinetics/>
 """
 
+# CHANGED THE ORIGINAL CODE, BECAUSE IT DIDN'T SUPPORT WEIGHTED RANDOM SAMPLER
 
 def Kinetics(
         data_path: str,

@@ -5,10 +5,6 @@ import re
 import numpy as np
 import pandas as pd
 
-import torch.nn as nn
-from pytorch_lightning import Trainer
-from torch.nn import BCEWithLogitsLoss
-
 
 def perform_operation(file_path, csv_path, output_path):
     print(

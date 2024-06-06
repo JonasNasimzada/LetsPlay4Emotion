@@ -1,4 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+# CHANGED THE ORIGINAL CODE, BECAUSE IT DIDN'T SUPPORT WEIGHTED RANDOM SAMPLER
+
 
 from __future__ import annotations
 

@@ -1,0 +1,7 @@
+[submodule "texture/FFHQ-UV"]
+	path = texture/FFHQ-UV
+	url = https://github.com/csbhr/FFHQ-UV
+[submodule "mesh/emoca"]
+	path = mesh/emoca
+	url = https://github.com/radekd91/emoca
+	branch = release/EMOCA_v2
