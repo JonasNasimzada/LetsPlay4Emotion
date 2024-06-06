@@ -57,5 +57,8 @@ Use and/or adjust the [`create_emoca_mesh.sh`](mesh/create_emoca_mesh.sh) script
 (For render videos a .blend file is needed where the camera, the lightning, etc. is set) \
 Run the [`start_render_mesh.sh`](render/start_render_mesh.sh) and enter the parameter
 
+### Model Training
+Adjust the parameter in [`train_model_binary.sh`](model/train_model_binary.sh) or [`train_model_multi.sh`](model/train_model_multi.sh) and run the code \
+More adjustable parameter is in the python code [`model_slowfast.py`](model/model_slowfast.py)
 
 
