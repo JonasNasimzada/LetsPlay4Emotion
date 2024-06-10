@@ -42,7 +42,7 @@ Change the mounted folder(-structure) in the [`generating_threading.py`](render/
 ### Model Training
 Install the conda `environment_model.yml`
 
-## Usage
+## Run source codes
 The scripts are adjusted for the [Slurm cluster](https://slurm.schedmd.com/)
 
 ### Mesh-Generation
@@ -60,5 +60,14 @@ Run the [`start_render_mesh.sh`](render/start_render_mesh.sh) and enter the para
 ### Model Training
 Adjust the parameter in [`train_model_binary.sh`](model/train_model_binary.sh) or [`train_model_multi.sh`](model/train_model_multi.sh) and run the code \
 More adjustable parameter is in the python code [`model_slowfast.py`](model/model_slowfast.py)
+
+## Acknowledgments
+This project was created as part of my bachelor thesis in cooperation with the 
+University of Stuttgart and the Institute for Artificial Intelligence in Medicine Essen (IKIM Essen) \
+For organizational questions, please contact [Jun.Prof. Dr.-Ing. Alina Roitberg](https://aroitberg.github.io/index.html) or [Dr.-Ing. Constantin Seibold](https://constantinseibold.github.io). 
+
+These implementations are based on the [FFHQ-UV](https://github.com/csbhr/FFHQ-UV) and [EMOCA](https://github.com/radekd91/emoca) repositories
+
+Big thanks to Jun.Prof. Dr.-Ing. Alina Roitberg and Dr.-Ing. Constantin Seibold for their support in the project.
 
 
