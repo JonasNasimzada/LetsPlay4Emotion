@@ -71,3 +71,18 @@ These implementations are based on the [FFHQ-UV](https://github.com/csbhr/FFHQ-U
 Big thanks to Jun.Prof. Dr.-Ing. Alina Roitberg and Dr.-Ing. Constantin Seibold for their support in the project.
 
 
+## Citation
+If you use this work, please cite:
+```latex
+@misc{nasimzada2024syntheticdatagenerationimproved,
+      title={Towards Synthetic Data Generation for Improved Pain Recognition in Videos under Patient Constraints}, 
+      author={Jonas Nasimzada and Jens Kleesiek and Ken Herrmann and Alina Roitberg and Constantin Seibold},
+      year={2024},
+      eprint={2409.16382},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2409.16382}, 
+}
+
+
+```
